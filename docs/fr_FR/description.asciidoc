@@ -1,0 +1,38 @@
+﻿Plugin permettant de récupérer, d'afficher et d'exploiter les informations de certaines Box Bouygues Télécom. 
+
+[icon="../images/plugin/important.png"]
+[IMPORTANT]
+Certaines informations et actions ne sont disponibles que si votre box propose l'API
+
+* Les informations récoltées sont les suivantes :
+** Présence Box : Détecte la présence de la box
+** Lumière : Indique si les voyants lumineux de la box sont activés ou non _(API seulement)_
+** Internet : Indique la connexion au WAN
+** Wifi : Indique l'état de la connexion Wifi
+** TV : Indique si un périphérique de gestion de flux (décodeur) a été détecté sur le réseau LAN
+** IP Wan : Indique l'adresse IP du routeur sur Internet
+** VoIP : Indique l'état de l'activation du service de téléphonie IP
+** Numéro : Indique le numéro de téléphone associé au service VoIP
+** Temps de fonctionnement : Indique le nombre de jours, heures et minutes depuis le dernier démarrage
+** Débit descendant : Indique en kb/s le débit sur l'entrée WAN de la box
+** Débit ascendant : Indique en kb/s le débit sur la sortie WAN de la box
+** Reçu : Nombre d'octets reçus par la box depuis la dernière remise à zéro
+** Envoyé : Nombre d'octets envoyés par la box depuis la dernière remise à zéro
+** Variation Reçu : Nombre d'octets reçus par la box depuis le dernier rafraîchissement
+** Variation Envoyé : Nombre d'octets envoyés par la box depuis le dernier rafraîchissement
+** Appels Manqués : Nombre d'appels reçus mais non répondus (ce nombre est remis à zéro à chaque utilisation du service VoIP)
+** Messages vocaux : Nombre de messages vocaux non consultés
+** Périphériques : Nombre de périphériques détectés par la box sur le LAN. Le décodeur TV est compris dans ce nombre
+** Liste : Retourne un tableau JSON avec pour chaque périphérique détecté : adresse IP, Nom, adresse MAC
+** Journal des appels : Liste des appels émis, reçus et manqués _(API seulement et nécessite que votre box soit connectée à votre compte)_
+** Journal des messages : Liste des messages vocaux ainsi que le lien pour les télécharger _(API seulement et nécessite que votre box soit connectée à votre compte)_
+** Chaîne : Retourne le nom de la chaîne actuellement diffusée sur le décodeur et vide si le décodeur est éteint ou le service désactivé. 
+
+* Les actions possibles sont les suivantes :
+** Redémarrer : Redémarre la box
+** Lumière On : Allume les lumières de la box _(API seulement)_
+** Lumière Off : Eteint les lumières de la box _(API seulement)_
+** Wifi On : Active le Wifi
+** Wifi Off : Désactive le Wifi
+** Appeler : Fait sonner le numéro associé au service VoIP (pendant 20 secondes)
+** Raccrocher : Arrête de faire sonner le numéro associé au service VoIP

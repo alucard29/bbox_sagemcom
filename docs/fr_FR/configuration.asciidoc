@@ -1,0 +1,72 @@
+﻿Le plugin Bbox_SagemCom permet de recevoir et d'exploiter certaines données de la box Bouygues Télécom
+
+Une fois installé à partir du Market, commencez par activer le plugin.
+
+image::../images/activation.png[]
+
+Puis, accédez à la page de configuration du plugin via l'onglet Plugins.
+
+image::../images/plugins.png[]
+
+Pour créer son équipement, il suffit de cliquer sur le bouton ajouter.
+
+image::../images/ajouter.png[]
+
+Le menu général permet de donner un nom, une place dans l'arborescence, activer et rendre visible votre équipement Bbox. Vous pouvez aussi ajouter votre équipement à l'une des catégories de Jeedom. 
+
+image::../images/general.png[]
+
+Vous devez ensuite configurer votre équipement :
+
+image::../images/configuration.png[]
+
+Pour ce faire, entrez l'adresse de la box. Sauf cas particulier, renseignez "bbox" comme adresse pour votre box Bouygues Télécom.
+
+[icon="../images/plugin/tip.png"]
+[TIP]
+le http:// est rajouté automatiquement
+[icon="../images/plugin/tip.png"]
+[TIP]
+Voir la FAQ pour plus d'informations sur comment trouver votre adresse
+
+Vous devez aussi choisir votre type de connexion. Si vous avez un doute, vous pouvez (via votre navigateur internet) vous rendre sur le menu "État des connexions" de l'interface de configuration de votre BBox. L'image suivante vous montre un exemple de connexion type FFTH/xDSL :
+
+image::../images/connexion.png[]
+
+Si l'interface de votre BBox ressemble à l'image précédente, laissez le mode *défaut*, sinon, choisissez le mode *API*.
+
+Si vous avez sélectionné le mode API, vous serez invités a entrer le mot de passe que vous utilisez pour vous connecter à votre BBox.
+
+Vous pouvez enfin décider d'appliquer une vue (tuile) pré-configurée ou laisser l'affichage par défaut. 
+
+La vue par défaut ressemblera à ça :
+
+image::../images/default.png[]
+
+[icon="../images/plugin/tip.png"]
+[TIP]
+Ceci reste complètement personnalisable via Jeedom
+
+Voir le chapitre *Exemple de personnalisation de la Tuile* pour le résultat de la vue pré-configurée.
+
+Une fois l'équipement sauvegardé, la liste des commandes disponibles apparaît:
+
+image::../images/commandes.png[]
+
+* Id : le nombre indique l'ID de la commande et la double-flèche permet de modifier l'ordre d'affichage des commandes dans la tuile (cliquer-déposer)
+* Nom : Nom de la commande
+* Type : Type de la commande : peut être une info ou une action
+* Sous-Type : Sous-type de la commande : peut être binaire, numérique, chaîne de caractères ou autres
+* Note : Informations spécifiques à la commande. Pour les actions, un champs supplémentaire permet de relier le résultat d'une commande info au retour de l'action. Ce paramètre peut être utile pour configurer l'affichage du plugin
+* Paramètres : Permet de gérer l'affichage et éventuellement l'historisation des résultats de la commande
+* Action : Permet de tester une commande ou de modifier finement sa configuration via l'icone avec les roues crantées
+
+[icon="../images/plugin/tip.png"]
+[TIP]
+Si vous avez choisi la tuile pré-configurée, vous n'avez rien à faire. Sinon, à vous de jouer avec les paramètres de configuration offerts par Jeedom
+
+[icon="../images/plugin/important.png"]
+[IMPORTANT]
+N'oubliez pas de sauvegarder votre équipement après toute modification de la configuration
+
+

@@ -1,0 +1,63 @@
+﻿[panel,primary]
+.Comment savoir si ma BBox est compatible ?
+--
+Rendez-vous sur la page d'administration de votre BBox depuis votre navigateur Internet. Cliquez sur "Etat des connections" puis sur l'onglet "Bbox". 
+
+Si dans "Informations sur la Bbox" vous voyez :
+
+** Sagemcom Fast3965b ou Fast5330b : Ce plugin est compatible avec votre Bbox
+** Samsung OB1-GTW-C ou Ubee TVW620.I : Ce plugin est aussi compatible avec votre Bbox
+** Thomson TG787 : Ce plugin est compatible si le firmware de votre box propose l'API
+** Une autre référence : Merci de me contacter via le sujet officiel du Forum Jeedom
+[icon="../images/plugin/important.png"]
+[IMPORTANT]
+Ce plugin n'est pas compatible avec la box Sagemcom Fast3784b
+--
+
+[panel,primary]
+.Comment connaître l'adresse de ma box ADSL ?
+--
+L'adresse de votre BBox sur votre réseau local est souvent bbox. Pour le vérifier, ouvrez votre navigateur internet et tapez bbox dans la barre d'adresse. Vous pouvez aussi éventuellement essayer gestionbbox.lan ou 192.168.1.254. N'oubliez pas http:// avant l'adresse quand vous testez dans votre navigateur mais pas dans le plugin (il est rajouté automatiquement). 
+--
+
+[panel,primary]
+.Le plugin indique que le service VoIP est désactivé alors le téléphone fonctionne.
+--
+Votre mot de passe est erroné ! une fois corrigé, redémarrez votre BBox pour effacer son historique des connexions.
+--
+
+[panel,primary]
+.Le journal des appels ou des messages vocaux est vide alors que le nombre correspondant est non nul.
+--
+Votre box n'est pas connectée à votre compte. Rendez-vous sur la page d'administration de votre BBox.
+--
+
+[panel,primary]
+.xDSL/FFTH ou Cable ?
+--
+Si vous avez un doute, rendez-vous sur la page d'administration de votre BBox dans la catégorie "État des connexions". Le titre du deuxième onglet devrait répondre à la question.
+--
+
+[panel,primary]
+.Lorsque je teste une commande de type "info", j'obtiens : No result has been sent.
+--
+Attendez une minute : Les infos du Plugin sont actualisées via le cron de Jeedom qui est appelé chaque minute
+--
+
+[panel,primary]
+.Pourquoi des commandes Variation Reçu et Variation Envoyé alors que l'historique de Jeedom permet déjà ce traitement ?
+--
+Les informations de données reçues et envoyées fournis par la BBox sont periodiquement remises à zéro (dépassement de capacité). Or, l'historique de Jeedom ne peut pas l'interpréter ce qui aurait donné un résultat aberrant. Le plugin (connaissant la capacité max) ajuste automatique les données afin de ne pas tenir compte de ce dépassement de capacité.
+--
+
+[panel,primary]
+.Après réactivation du Wifi, certains périphériques n'ont plus accès à internet (ni à la Bbox) ?
+--
+C'est un problème connu chez Bouygues Telecom. Ce plugin n'en ai pas la cause. Malheureusement, malgré plusieurs mises à jour du firmware, ce problème n'est toujours pas réglé. Vous pouvez trouver plus d'information sur ce bug à l'adresse suivante : http://forum.bouyguestelecom.fr/questions/797052-reconnexion-wifi-2-4ghz-ko-5ghz-ok . Une solution de contournement serait de redémarrer la Bbox au lieu de réactiver le Wifi.
+--
+
+[panel,primary]
+.J'ai activé le plugin et maintenant je n'accède plus à l'interface de ma BBox depuis mon navigateur internet.
+--
+Attendez un moment ! La BBox n'autorise qu'un nombre très limité de connexions simultanées. Le plugin monopolise déjà une connexion. Il suffit d'avoir fait un rafraîchissement et le nombre maximal de connexions simultanées peut être atteint. Attendez quelques minutes pour qu'une connexion se libère.
+--

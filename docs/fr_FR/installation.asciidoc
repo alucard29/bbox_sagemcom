@@ -1,0 +1,3 @@
+﻿Il n'y a pas de particularités dans l'installation de ce plugin.
+
+Merci de vous reporter à la documentation Jeedom https://www.jeedom.fr/doc/documentation/core/fr_FR/doc-core-plugin.html[ici] pour de plus amples informations.

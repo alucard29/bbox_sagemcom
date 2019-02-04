@@ -1,0 +1,25 @@
+﻿=== Exemples d'utilisation
+
+Ce plugin (éventuellement utilisé en conjonction avec d'autres plugins) peut vous permettre de :
+
+* Couper le Wifi la nuit ou en période d'absence
+* Vous envoyer un sms ou un e-mail los de la réception d'un nouveau message vocal
+* Faire sonner le téléphone en cas d'intrusion
+
+=== Exemple de personnalisation de la Tuile
+
+Si vous avez sélectionné la vue pré-configurée, vous devriez obtenir le rendu suivant :
+
+image::../images/bbox_sagemcom_screenshot2.png[]
+
+Voici les éléments notables de cette Tuile : 
+
+* Le Widget présence indique le résultat de la détection de la box (vert = détectée / rouge = absente). Cliquez sur ce dernier pour redémarrer votre box
+* Le Widget Internet (nuage) indique l'état de votre connexion internet (vert = synchronisé / rouge = désynchronisé). 
+* Le Widget Wifi indique l'état de votre service wifi (vert = activé / rouge = désactivé). Cliquez sur ce dernier pour inverser son état
+* Le Widget TV indique la présence d'un équipement Video dans votre réseau (vert = détecté / rouge = absent)
+* Le Widget VoIP indique l'état de votre service Téléphonique (vert = activé / rouge = désactivé)
+* Le Widget avec un téléphone et une croix indique le nombre de nouveaux appels manqués. Cliquez dessus pour ouvrir une fenêtre affichant la liste complète des derniers appels _(API seulement)_
+* Le Widget avec un téléphone et un point d'exclamation indique le nombre de nouveaux messages vocaux. Cliquez dessus pour ouvrir une fenêtre affichant la liste des messages vocaux et permettant de les télécharger ou de les supprimer _(API seulement)_
+* Le Widget Périphériques indique le nombre de périphériques détectés sur votre réseau. Cliquez dessus pour ouvrir une fenêtre affichant le nom (si pas de nom l'adresse MAC) et l'adresse IP des différents périphériques. _Merci à  https://www.jeedom.fr/forum/memberlist.php?mode=viewprofile&u=249[skyline-ch] pour son aide_ _(API seulement)_
+

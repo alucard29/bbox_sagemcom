@@ -1,0 +1,22 @@
+﻿:icons:
+== Bbox
+
+'''
+=== Description
+include::description.asciidoc[]
+
+'''
+=== Installation
+include::installation.asciidoc[]
+
+'''
+=== Configuration
+include::configuration.asciidoc[]
+
+'''
+=== Exemples
+include::exemples.asciidoc[]
+
+'''
+=== FAQ
+include::faq.asciidoc[]
