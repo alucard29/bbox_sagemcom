@@ -1,1 +1,2 @@
-﻿2018-11-12 09:47:23 : Ajout compatibilité nouvelle API Bouygues
+﻿2018-11-12 : Ajout compatibilité nouvelle API Bouygues
+ 2019-02-25 : Ajout compatibilité Doc Jeedom
