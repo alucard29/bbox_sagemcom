@@ -20,3 +20,7 @@ include::exemples.asciidoc[]
 '''
 === FAQ
 include::faq.asciidoc[]
+
+'''
+=== Changelog
+include::changelog.asciidoc[]
