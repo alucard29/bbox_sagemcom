@@ -1,0 +1,38 @@
+<div class="btn btn-circle cmd tooltips container-fluid" style="position : absolute;right : 0px;top : 0px;font-size :1.5em;" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Allumer/Eteindre Lumières">
+<!--<div class="btn btn-circle btn-xs cmd tooltips cmd-widget container-fluid" style="position : absolute;right : 0px;top : 0px;font-size :1.5em;" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Allumer/Eteindre Lumières">-->
+<center>
+            <a><span class="action iconLight#id#"></span></a>
+	</center>
+	<script>
+		$(".iconLight#id#").empty();
+		if ("#state#" == "1") {
+			$(".iconLight#id#").append("<i class='fa fa-lightbulb-o'></i>").css("color", "lime");
+			if (jeedom.cmd.normalizeName("#name#") == "on") {
+				$(".cmd[data-cmd_id=#id#]").hide();
+			}
+		} else {
+			$(".iconLight#id#").append("<i class='fa fa-lightbulb-o'></i>").css("color", "white");
+                        $(".iconLight#id#").tooltip({
+                            content: "test2", 
+                            html: true
+                        });
+			if (jeedom.cmd.normalizeName("#name#") == "off") {
+				$(".cmd[data-cmd_id=#id#]").hide();
+			}
+		}
+		$(".cmd[data-cmd_id=#id#] .action").off();
+		$(".cmd[data-cmd_id=#id#] .action").on("click", function() {
+			jeedom.cmd.execute({id: "#id#"});
+		});
+                
+                $(document).ready(function(){ 
+                    var cible = $('iconLight#id#').parent();
+                    $(cible).on('mouseover', function(e) {
+                        $(cible).tooltip({
+                        content: "test1", 
+                        html: true
+                      });
+                    });
+                });
+	</script>
+</div>

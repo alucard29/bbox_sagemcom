@@ -1,0 +1,25 @@
+<!--<div class="btn btn-circle btn-xs cmd tooltips cmd-widget container-fluid" data-type="info" data-subtype="numeric" data-cmd_id="#id#">-->
+<div class="btn btn-circle cmd tooltips container-fluid" style="position : absolute;left : 0px;top : 0px;font-size :1.2em;" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Redémarrer">
+	<center>
+                <!--<span class="action bbox_cmd test" id="iconCmd#id#"></span>-->
+                <span class="action iconCmd#id#"></span>
+	</center>
+	<script>
+            $(".iconCmd#id#").empty();
+            if ("#state#" == "1") {
+                    $(".iconCmd#id#").append("<i class='fa fa-power-off'></i>").css("color", "lime");
+                    if (jeedom.cmd.normalizeName("#name#") == "on") {
+                            $(".cmd[data-cmd_id=#id#]").hide();
+                    }
+            } else {
+                    $(".iconCmd#id#").append("<i class='fa fa-power-off'></i>").css("color", "red");
+                    if (jeedom.cmd.normalizeName("#name#") == "off") {
+                            $(".cmd[data-cmd_id=#id#]").hide();
+                    }
+            }
+            $(".cmd[data-cmd_id=#id#] .action").off();
+            $(".cmd[data-cmd_id=#id#] .action").on("click", function() {
+                    jeedom.cmd.execute({id: "#id#"});
+            });
+	</script>            
+</div>

@@ -1,0 +1,21 @@
+<div style="width:90px; min-height:80px;cursor: pointer;" class="cmd tooltips cmd-widget container-fluid" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Afficher la liste des messages vocaux">
+	<center>
+		<span class="cmdName" style="font-weight: bold;font-size : 12px;">#name_display#</span><br>
+		<span style="font-size: 2.5em;" class="action" id="iconCmd#id#"></span>
+	</center>
+	<script>
+            var temp = #state#
+            $('#iconCmd#id#').append('<i class="icon techno-phone1"></i>');
+            $('#iconCmd#id#').parent().append('<span style="font-weight: bold;font-size: 20px;"><br>'+temp+'</span>');
+            $('#iconCmd#id#').on('click', function() {
+                $('#md_modal2').dialog({
+                        title: "Liste des messages",
+                        width : 420,
+                        height: 550,
+                        position: {my: "center", at:"center", of: window }
+                });
+
+                $('#md_modal2').load('index.php?v=d&plugin=bbox_sagemcom&modal=messagelog&id='+ #id#).dialog('open');
+            });
+	</script>
+</div>
