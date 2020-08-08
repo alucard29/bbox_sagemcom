@@ -140,7 +140,6 @@ class bbox_sagemcom extends eqLogic {
                 $bbox_sagemcomCmd->setIsVisible($cmd['configuration']['visible']);
             }
             $bbox_sagemcomCmd->save();
-            $bbox_sagemcomCmd->refresh();
         }
     }
 
@@ -198,7 +197,6 @@ class bbox_sagemcom extends eqLogic {
             }
 
             $configureCmd->save();
-            $configureCmd->refresh();
         }
     }
 
