@@ -279,11 +279,13 @@ class bbox_sagemcom extends eqLogic {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox not detected or bad response');
                 $bbox_detection = false;
             } else {
-                if (array_key_exists('exception', $result)) {
-                    $re_connect = $this->open_api_session();
-                    $result = $this->refresh('callLog');
-                    $this->waitBoxReady(120);
-                }
+                // FIXME: $result is true here, not an array and what's the point to reconnect etc?
+
+                // if (array_key_exists('exception', $result)) {
+                //     $re_connect = $this->open_api_session();
+                //     $result = $this->refresh('callLog');
+                //     $this->waitBoxReady(120);
+                // }
             }
 
             // Second, collect data
