@@ -273,7 +273,7 @@ class bbox_sagemcom extends eqLogic {
         // First, refresh data
         $re_connect = $this->open_api_session();
         if ($re_connect == true) {
-            $result = $this->refresh('callLog');
+            $result = $this->refresh_bbox('callLog');
             $this->waitBoxReady(120);
             if ($result == false) {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox not detected or bad response');
@@ -283,7 +283,7 @@ class bbox_sagemcom extends eqLogic {
 
                 // if (array_key_exists('exception', $result)) {
                 //     $re_connect = $this->open_api_session();
-                //     $result = $this->refresh('callLog');
+                //     $result = $this->refresh_bbox('callLog');
                 //     $this->waitBoxReady(120);
                 // }
             }
@@ -313,7 +313,7 @@ class bbox_sagemcom extends eqLogic {
         }
 
          // Message Log | added the 21/1/2016 | restriction : Apply only for 1 line (the fist)
-        $result = $this->refresh('get_voicemail');
+        $result = $this->refresh_bbox('get_voicemail');
         $this->waitBoxReady(120);
         $result = $this->api_request('voip/voicemail');
         if ($result == false) {
@@ -775,15 +775,15 @@ class bbox_sagemcom extends eqLogic {
         }
     }
 
-    public function refresh($action) {
-        log::add('bbox_sagemcom', 'debug', '[refresh] Function called');
+    public function refresh_bbox($action) {
+        log::add('bbox_sagemcom', 'debug', '[refresh_bbox] Function called');
         $serveur = trim($this->getConfiguration('BBOX_SERVER_IP'));
         $rurl = $serveur . '/api/v1/profile/refresh';
         // Cannot send request without URL
         if ($serveur == '') {
             throw new Exception('Adresse de la BBox non-renseignée');
         }
-        log::add('bbox_sagemcom', 'debug', '[refresh] Send request to : ' . $rurl);
+        log::add('bbox_sagemcom', 'debug', '[refresh_bbox] Send request to : ' . $rurl);
         $http = curl_init();
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
@@ -791,7 +791,7 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($http, CURLOPT_POSTFIELDS, 'action=' . $action);
         $result = curl_exec($http);
-        log::add('bbox_sagemcom', 'debug', '[refresh] response is : ' . $result);
+        log::add('bbox_sagemcom', 'debug', '[refresh_bbox] response is : ' . $result);
         curl_close($http);
         return true;
     }
@@ -839,11 +839,11 @@ class bbox_sagemcom extends eqLogic {
             $equipment->waitBoxReady(120);
             $re_connect = $equipment->open_api_session();
             if ($re_connect == true) {
-                $result = $equipment->refresh('callLog');
+                $result = $equipment->refresh_bbox('callLog');
                 $equipment->waitBoxReady(120);
                 $result = $equipment->refreshMessageWaiting();
                 if ($result == true) {
-                    $result = $equipment->refresh('get_voicemail');
+                    $result = $equipment->refresh_bbox('get_voicemail');
                     $equipment->waitBoxReady(120);
                     $result = $equipment->refreshMessageLog();
                     return $result;
@@ -896,11 +896,11 @@ class bbox_sagemcom extends eqLogic {
             $result = $equipment->waitBoxReady(120);
             if ($result == true) {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox is ready to receive new data');
-                $result = $equipment->refresh('callLog');
+                $result = $equipment->refresh_bbox('callLog');
                 $equipment->waitBoxReady(120);
                 $result = $equipment->refreshMessageWaiting();
                 if ($result == true) {
-                    $result = $equipment->refresh('get_voicemail');
+                    $result = $equipment->refresh_bbox('get_voicemail');
                     $equipment->waitBoxReady(120);
                     $result = $equipment->refreshMessageLog();
                     return $result;
