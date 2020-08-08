@@ -18,20 +18,20 @@
 
 // Revision	Date			Comment
 // v0.0.1 		02/04/2015		First release
-// v0.0.2		10/04/2015		Comment in [request_mechanism] 
-//                                              corrected http:// added at the 
-//                                              beginning of the URL 
+// v0.0.2		10/04/2015		Comment in [request_mechanism]
+//                                              corrected http:// added at the
+//                                              beginning of the URL
 //						Specific reboot function added
 //						Write function return corrected
-// v0.0.3 		28/06/2015		All postUpdate parameters moved 
+// v0.0.3 		28/06/2015		All postUpdate parameters moved
 //                                              in "if" statement
-//						xDSL/Cable or Cable function 
+//						xDSL/Cable or Cable function
 //						added
-// v0.1.0 		30/06/2015		Bandwidth informations are now 
-//                                              computed from Layer3 Service 
+// v0.1.0 		30/06/2015		Bandwidth informations are now
+//                                              computed from Layer3 Service
 //                                              only (more precise)
-// v0.1.1 		01/07/2015		Bandwidth results unit changed 
-//                                              to bps as in Kbps the value may 
+// v0.1.1 		01/07/2015		Bandwidth results unit changed
+//                                              to bps as in Kbps the value may
 //                                              not be updated for a while
 // v0.1.2		03/07/2015		uptime added
 //						pre-configured layout added
@@ -41,7 +41,7 @@
 // v1.2.0		28/11/2015		use a configuration file
 // v1.2.1               30/12/2015              add calllog command
 // v1.2.2		12/08/2018		Remove "trim" function on
-//						password save  
+//						password save
 // v1.2.3		07/11/208		remove http to allow the use of https
 // v1.2.4		09/06/2019		New TC channel detection method
 /* * ***************************Includes********************************* */
@@ -61,12 +61,12 @@ class bbox_sagemcom extends eqLogic {
         // Test the mode (API or legacy mode)
         $mode = $this->getConfiguration('BBOX_USE_API');
         log::add('bbox_sagemcom', 'debug', '[postUpdate] Selected mode is : ' . $mode);
-        
+
         // Test if the custom widget shall be used
         $custom = $this->getConfiguration('BBOX_CUSTOM_WIDGET', 0);
         log::add('bbox_sagemcom', 'debug', '[postUpdate] Custom variable is equal to : ' . $custom);
 
-        // Parse the command list and add commands that don't exist if ok 
+        // Parse the command list and add commands that don't exist if ok
         // according to the selected mode
         global $listCmdBbox_sagemcom;
         foreach ($listCmdBbox_sagemcom as $cmd) {
@@ -93,7 +93,7 @@ class bbox_sagemcom extends eqLogic {
             }
         }
     }
-    
+
     public function postSave() {
         log::add('bbox_sagemcom', 'debug', '[postSave] Function called');
         // Test if the custom widget shall be used
@@ -149,24 +149,24 @@ class bbox_sagemcom extends eqLogic {
         if ($cmd) {
             $configureCmd = $this->getCmd(null, $cmd['logicalId']);
             log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] work on : ' . $cmd['logicalId']);
-            
+
             $configureCmd->setOrder($cmd['configuration']['order']);
             log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set order to : ' . $cmd['configuration']['order']);
-            
+
             if ($configureCmd->getName()!= $cmd['name']) {
                 $configureCmd->setName($cmd['name']);
             }
-            
+
             if (array_key_exists('template', $cmd['configuration'])) {
                 $configureCmd->setTemplate('dashboard', $cmd['configuration']['template']);
                 log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set template to : ' . $cmd['configuration']['template']);
             }
-            
+
             if (array_key_exists('visible', $cmd['configuration'])) {
                 $configureCmd->setIsVisible($cmd['configuration']['visible']);
                 log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set visible to : ' . $cmd['configuration']['visible']);
             }
-            
+
             if (array_key_exists('value', $cmd['configuration'])) {
                 $cmdUsedForValue = $this->getCmd(null, $cmd['configuration']['value']);
                 if (!is_object($cmdUsedForValue)) {
@@ -176,32 +176,32 @@ class bbox_sagemcom extends eqLogic {
                     log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set value using : ' . $cmd['configuration']['value']);
                 }
             }
-            
+
             if (array_key_exists('returnAfter', $cmd['configuration'])) {
                 $configureCmd->setDisplay('forceReturnLineAfter', $cmd['configuration']['returnAfter']);
                 log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set returnAfter to : ' . $cmd['configuration']['returnAfter']);
             }
-            
+
             if (array_key_exists('returnBefore', $cmd['configuration'])) {
                 $configureCmd->setDisplay('forceReturnLineBefore', $cmd['configuration']['returnBefore']);
                 log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set returnBefore to : ' . $cmd['configuration']['returnBefore']);
             }
-            
+
             if (array_key_exists('minValue', $cmd['configuration'])) {
                 $configureCmd->setConfiguration('minValue', $cmd['configuration']['minValue']);
                 log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set minValue to : ' . $cmd['configuration']['minValue']);
             }
-            
+
             if (array_key_exists('unite', $cmd)) {
                 $configureCmd->setUnite($cmd['unite']);
                 log::add('bbox_sagemcom', 'debug', '[configureBBoxCmd] Set unit to ' . $cmd['unite']);
             }
-            
+
             $configureCmd->save();
             $configureCmd->refresh();
         }
     }
-    
+
     // Function called by Jeedom every minute
     public static function cron() {
         log::add('bbox_sagemcom', 'debug', '[cron] Function called');
@@ -268,7 +268,7 @@ class bbox_sagemcom extends eqLogic {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] Found an active VoIP service');
             }
         }
-        
+
         // Call Log | added the 30/12/2015 | restriction : Apply only for 1 line (the fist)
         // First, refresh data
         $re_connect = $this->open_api_session();
@@ -281,7 +281,7 @@ class bbox_sagemcom extends eqLogic {
             } else {
                 if (array_key_exists('exception', $result)) {
                     $re_connect = $this->open_api_session();
-                    $result = $equipment->refresh('callLog');
+                    $result = $this->refresh('callLog');
                     $this->waitBoxReady(120);
                 }
             }
@@ -309,10 +309,10 @@ class bbox_sagemcom extends eqLogic {
                 }
             }
         }
-        
+
          // Message Log | added the 21/1/2016 | restriction : Apply only for 1 line (the fist)
         $result = $this->refresh('get_voicemail');
-        $this->waitBoxReady(120); 
+        $this->waitBoxReady(120);
         $result = $this->api_request('voip/voicemail');
         if ($result == false) {
             log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox not detected or bad response');
@@ -364,7 +364,7 @@ class bbox_sagemcom extends eqLogic {
             $rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['bandwidth']) * 1000);
             $max_rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['maxBandwidth']) * 1000);
         } else {
-            // results are given in kbps and max values in bps 
+            // results are given in kbps and max values in bps
             $rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['bandwidth']) * 1000);
             $max_rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['maxBandwidth']));
             $rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['bandwidth']) * 1000);
@@ -398,7 +398,7 @@ class bbox_sagemcom extends eqLogic {
                 log::add('bbox_sagemcom', 'error', '[box_monitor_api] detect connected devices entry is not a array');
             }
         }
-        
+
         // TV Channel detection  (old method)
         $currentTvChannel = "";
         //$tvChannelInformation = "";
@@ -429,14 +429,14 @@ class bbox_sagemcom extends eqLogic {
         } else {
             if ($result[0]['wireless']['radio'] == 1) {
                 $wifi_detected = 1;
-                
+
             }
             $received_calls = $result[0]['voip'][0]['notanswered'];
             $message_waiting = $result[0]['voip'][0]['message'];
 	    $currentTvChannel = $result[0]['display']['frontpanel'];
         }
-        
-        
+
+
 
         // Save results in an array using cmd ID as Key
         $retourbbox = array('box_state' => $bbox_detection,
@@ -476,7 +476,7 @@ class bbox_sagemcom extends eqLogic {
             log::add('bbox_sagemcom', 'debug', '[box_monitor_api] Response value is : ' . $retourbbox[$cmd_id]);
 
             log::add('bbox_sagemcom', 'debug', '[box_monitor_api] Test if ' . $cmd_id . ' Value has changed');
-            
+
             // Update value only if needed
             if ($stored_value == null || $stored_value != $retourbbox[$cmd_id]) {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] Update ' . $cmd_id . ' value with : ' . $retourbbox[$cmd_id]);
@@ -660,7 +660,7 @@ class bbox_sagemcom extends eqLogic {
             $rate_up = round(floatval($result['WANConnectionDevice_{Layer3Forwarding_ActiveConnectionService}'][$wan]['Counters']['TxBandwidth']) * 1000);
             $max_rate_up = round(floatval($result['WANConnectionDevice_{Layer3Forwarding_ActiveConnectionService}'][$wan]['Counters']['TxMaxBandwidth']) * 1000);
         } else {
-            // results are given in kbps and max values in bps 
+            // results are given in kbps and max values in bps
             $rate_down = round(floatval($result['WANConnectionDevice_{Layer3Forwarding_ActiveConnectionService}'][$wan]['Counters']['RxBandwidth']) * 1000);
             $max_rate_down = round(floatval($result['WANConnectionDevice_{Layer3Forwarding_ActiveConnectionService}'][$wan]['Counters']['RxMaxBandwidth']));
             $rate_up = round(floatval($result['WANConnectionDevice_{Layer3Forwarding_ActiveConnectionService}'][$wan]['Counters']['TxBandwidth']) * 1000);
@@ -739,7 +739,7 @@ class bbox_sagemcom extends eqLogic {
         //return false;															20151026_1
         //}																			20151026_1
     }
-    
+
         // Function used to request a new cookie
     public function open_api_session() {
         log::add('bbox_sagemcom', 'debug', '[open_api_session] Function called');
@@ -772,7 +772,7 @@ class bbox_sagemcom extends eqLogic {
             return true;
         }
     }
-    
+
     public function refresh($action) {
         log::add('bbox_sagemcom', 'debug', '[refresh] Function called');
         $serveur = trim($this->getConfiguration('BBOX_SERVER_IP'));
@@ -793,7 +793,7 @@ class bbox_sagemcom extends eqLogic {
         curl_close($http);
         return true;
     }
-    
+
     public function waitBoxReady($timeout) {
         $bboxBusy = false;
         log::add('bbox_sagemcom', 'debug', '[waitBoxReady] Function called');
@@ -814,11 +814,11 @@ class bbox_sagemcom extends eqLogic {
             return true;
         }
     }
-    
+
     public static function deleteMessage($eqLogicId,$messageId) {
         log::add('bbox_sagemcom', 'debug', '[deleteMessage] Function called by ID : '.$eqLogicId);
         $equipment = bbox_sagemcom::byId($eqLogicId);
-        
+
         $re_connect = $equipment->open_api_session();
         if ($re_connect == true) {
             $serveur = trim($equipment->getConfiguration('BBOX_SERVER_IP'));
@@ -833,8 +833,8 @@ class bbox_sagemcom extends eqLogic {
             $result = curl_exec($http);
             log::add('bbox_sagemcom', 'debug', '[deleteMessage] response is : ' . $result);
             curl_close($http);
-            
-            $equipment->waitBoxReady(120);            
+
+            $equipment->waitBoxReady(120);
             $re_connect = $equipment->open_api_session();
             if ($re_connect == true) {
                 $result = $equipment->refresh('callLog');
@@ -857,21 +857,21 @@ class bbox_sagemcom extends eqLogic {
             return false;
         }
      }
-    
-// commented for now as the API seems to be incomplet    
+
+// commented for now as the API seems to be incomplet
     public static function clearMessage($eqLogicId,$messageId,$messageLink) {
-        log::add('bbox_sagemcom', 'debug', '[clearMessage] Function called by ID : '.$eqLogicId);     
+        log::add('bbox_sagemcom', 'debug', '[clearMessage] Function called by ID : '.$eqLogicId);
         $equipment = bbox_sagemcom::byId($eqLogicId);
-        
+
         // pipo read (mandatory to set messages to unread)
-        log::add('bbox_sagemcom', 'debug', '[clearMessage] Send request to : ' . $link);
+        log::add('bbox_sagemcom', 'debug', '[clearMessage] Send request to : ' . $messageLink);
         $http = curl_init();
-        curl_setopt($http, CURLOPT_URL, $link);
+        curl_setopt($http, CURLOPT_URL, $messageLink);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[clearMessage] response is : ' . $result);
         curl_close($http);
-        
+
         // login command is also mandatory before clearing new messages
         $equipment->waitBoxReady(120);
         $re_connect = $equipment->open_api_session();
@@ -909,13 +909,13 @@ class bbox_sagemcom extends eqLogic {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox seems to be locked');
                 return false;
             }
-            
+
         } else {
             log::add('bbox_sagemcom', 'debug', '[clearMessage] Login failed before refresh');
             return false;
         }
     }
-    
+
     public function refreshMessageWaiting() {
         log::add('bbox_sagemcom', 'debug', '[refreshMessageWaiting] Function called');
         $result = $this->api_request('summary');
@@ -927,12 +927,12 @@ class bbox_sagemcom extends eqLogic {
             $cmd= $this->getCmd('info','message_waiting');
             $cmd_id= $cmd->getLogicalId();
             log::add('bbox_sagemcom', 'debug', '[refreshMessageWaiting] Save a new value for ID : '.$cmd_id);
-            $cmd->setCollectDate('');     
+            $cmd->setCollectDate('');
             $cmd->event($message_waiting);
             return true;
         }
     }
-    
+
     public function refreshMessageLog() {
         log::add('bbox_sagemcom', 'debug', '[refreshMessageLog] Function called');
         $result = $this->api_request('voip/voicemail');
@@ -947,7 +947,7 @@ class bbox_sagemcom extends eqLogic {
                     $messagelog_List[] = [$host_value['readstatus'], $host_value['callernumber'], $host_value['duration'], $host_value['dateconsult'], $host_value['linkmsg'], strval($host_value['id'])];
                 }
                 $cmd= $this->getCmd('info','messagelog');
-                $cmd->setCollectDate('');     
+                $cmd->setCollectDate('');
                 $cmd->event(json_encode($messagelog_List));
             } else {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] detect messagelog entry is not a array');
@@ -955,7 +955,7 @@ class bbox_sagemcom extends eqLogic {
             return true;
         }
     }
-    
+
     // Function used to ask for new tokens (specific address)
     public function open_session() {
         log::add('bbox_sagemcom', 'debug', '[open_session] Function called');
@@ -986,7 +986,7 @@ class bbox_sagemcom extends eqLogic {
         }
     }
 
-    // The BBox need a token for each request 
+    // The BBox need a token for each request
     // So, this function send a request with the saved token and, if the result
     // is not good, ask a new token
     public function request_mechanism($type, $request) {
@@ -1214,7 +1214,7 @@ class bbox_sagemcom extends eqLogic {
         log::add('bbox_sagemcom', 'debug', '[variation_calculation] Stored value was : ' . $var_last_value);
         log::add('bbox_sagemcom', 'debug', '[variation_calculation] New value is : ' . $actual_value);
 
-        // At start-up, the last value is not yet set 
+        // At start-up, the last value is not yet set
         if (!is_numeric($var_last_value)) {
             log::add('bbox_sagemcom', 'debug', '[variation_calculation] Initialisation with the following value : ' . $actual_value);
             $var_last_value = $actual_value;
@@ -1280,7 +1280,7 @@ class bbox_sagemcomCmd extends cmd {
                         $light = 1;
                     }
                     $cmd= $this->getEqLogic()->getCmd('info','lightState');
-                    $cmd->setCollectDate('');     
+                    $cmd->setCollectDate('');
                     $cmd->event($light);
                     $result = true;
                 }
@@ -1312,7 +1312,7 @@ class bbox_sagemcomCmd extends cmd {
                         $light = 1;
                     }
                     $cmd= $this->getEqLogic()->getCmd('info','lightState');
-                    $cmd->setCollectDate('');     
+                    $cmd->setCollectDate('');
                     $cmd->event($light);
                     $result = true;
                 }
