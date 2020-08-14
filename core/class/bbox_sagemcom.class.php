@@ -44,6 +44,9 @@
 //						password save
 // v1.2.3		07/11/208		remove http to allow the use of https
 // v1.2.4		09/06/2019		New TC channel detection method
+// v1.2.5		14/08/2020		Add CURLOPT_SSL_VERIFYHOST and
+//						CURLOPT_SSL_VERIFYPEER to support
+//						Wifi6 Box bad SSL certificat
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
@@ -527,6 +530,8 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_HEADER, false);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+	curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($http);
 
         if (empty($response)) {
@@ -757,6 +762,8 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_COOKIEJAR, "/tmp/cookies.txt");
         curl_setopt($http, CURLOPT_POST, 1);
         curl_setopt($http, CURLOPT_POSTFIELDS, 'password=' . $password);
+	curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
         $result = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[open_api_session] response is : ' . $result);
         curl_close($http);
@@ -788,6 +795,8 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($http, CURLOPT_POSTFIELDS, 'action=' . $action);
+	curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
         $result = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[refresh_bbox] response is : ' . $result);
         curl_close($http);
@@ -830,6 +839,8 @@ class bbox_sagemcom extends eqLogic {
             curl_setopt($http, CURLOPT_CUSTOMREQUEST, "DELETE");
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+	    curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	    curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
             $result = curl_exec($http);
             log::add('bbox_sagemcom', 'debug', '[deleteMessage] response is : ' . $result);
             curl_close($http);
@@ -868,6 +879,8 @@ class bbox_sagemcom extends eqLogic {
         $http = curl_init();
         curl_setopt($http, CURLOPT_URL, $messageLink);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
         $result = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[clearMessage] response is : ' . $result);
         curl_close($http);
@@ -888,6 +901,8 @@ class bbox_sagemcom extends eqLogic {
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
             curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
+	    curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	    curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
             $result = curl_exec($http);
             log::add('bbox_sagemcom', 'debug', '[clearMessage] response is : ' . $result);
             curl_close($http);
@@ -1076,6 +1091,8 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_HEADER, false);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+	curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[api_request] Response is : ' . $response);
         curl_close($http);
@@ -1092,6 +1109,8 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_POSTFIELDS, 'ring_timeout=function (){}');
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+	curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[api_request] Response is : ' . $response);
         curl_close($http);
@@ -1266,6 +1285,8 @@ class bbox_sagemcomCmd extends cmd {
                 curl_setopt($http, CURLOPT_POST, 1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, 'luminosity=100');
                 curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+		curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
                 $result = curl_exec($http);
                 log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $result);
                 curl_close($http);
@@ -1298,6 +1319,8 @@ class bbox_sagemcomCmd extends cmd {
                 curl_setopt($http, CURLOPT_POST, 1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, 'luminosity=0');
                 curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+		curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
                 $result = curl_exec($http);
                 log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $result);
                 curl_close($http);
@@ -1332,6 +1355,8 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_POSTFIELDS, 'radio.enable=1');
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+		    curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+		    curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
                     curl_close($http);
@@ -1355,6 +1380,8 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_POSTFIELDS, 'radio.enable=0');
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+		    curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+		    curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
                     curl_close($http);
@@ -1388,6 +1415,8 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_CUSTOMREQUEST, "DELETE");
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+		    curl_setopt($http, CURLOPT_SSL_VERIFYHOST, false);
+		    curl_setopt($http, CURLOPT_SSL_VERIFYPEER, false);
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
                     curl_close($http);
