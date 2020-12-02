@@ -526,6 +526,7 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_HEADER, false);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         $response = curl_exec($http);
 
@@ -754,6 +755,7 @@ class bbox_sagemcom extends eqLogic {
         $http = curl_init();
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
         curl_setopt($http, CURLOPT_COOKIEJAR, "/tmp/cookies.txt");
         curl_setopt($http, CURLOPT_POST, 1);
         curl_setopt($http, CURLOPT_POSTFIELDS, 'password=' . $password);
@@ -785,6 +787,7 @@ class bbox_sagemcom extends eqLogic {
         $http = curl_init();
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($http, CURLOPT_POSTFIELDS, 'action=' . $action);
@@ -829,6 +832,7 @@ class bbox_sagemcom extends eqLogic {
             curl_setopt($http, CURLOPT_HEADER, false);
             curl_setopt($http, CURLOPT_CUSTOMREQUEST, "DELETE");
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
             $result = curl_exec($http);
             log::add('bbox_sagemcom', 'debug', '[deleteMessage] response is : ' . $result);
@@ -886,6 +890,7 @@ class bbox_sagemcom extends eqLogic {
             $http = curl_init();
             curl_setopt($http, CURLOPT_URL, $rurl);
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
             curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
             $result = curl_exec($http);
@@ -1075,6 +1080,7 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_HEADER, false);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         $response = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[api_request] Response is : ' . $response);
@@ -1091,6 +1097,7 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_POST, 1);
         curl_setopt($http, CURLOPT_POSTFIELDS, 'ring_timeout=function (){}');
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         $response = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[api_request] Response is : ' . $response);
@@ -1265,6 +1272,7 @@ class bbox_sagemcomCmd extends cmd {
                 curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($http, CURLOPT_POST, 1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, 'luminosity=100');
+				curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
                 curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                 $result = curl_exec($http);
                 log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $result);
@@ -1297,6 +1305,7 @@ class bbox_sagemcomCmd extends cmd {
                 curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($http, CURLOPT_POST, 1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, 'luminosity=0');
+				curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
                 curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                 $result = curl_exec($http);
                 log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $result);
@@ -1331,6 +1340,7 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_POST, 1);
                     curl_setopt($http, CURLOPT_POSTFIELDS, 'radio.enable=1');
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
@@ -1354,6 +1364,7 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_POST, 1);
                     curl_setopt($http, CURLOPT_POSTFIELDS, 'radio.enable=0');
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
@@ -1387,6 +1398,7 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_HEADER, false);
                     curl_setopt($http, CURLOPT_CUSTOMREQUEST, "DELETE");
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
