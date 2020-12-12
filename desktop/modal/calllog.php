@@ -39,19 +39,26 @@ $reversedCalllog = array_reverse($calllog);
 
 $indent=1;
 
-$dataInHtml = '<table class="bbox_table"><tr><th class="dataListe"></th><th class="dataListe">N°</th><th class="dataListe">Durée</th><th class="dataListe">Date</th></tr>';
+$dataInHtml = '<table class="bbox_table"><tr><th class="dataListe"></th><th class="dataListe">N°</th><th class="dataListe">Durée (s)</th><th class="dataListe">Date</th></tr>';
 foreach ($reversedCalllog as $key => $value) {
     $dataInHtml .= '<tr id="log' . $indent . '" class="dataListe">';
     $dataInHtml .= '<td class="dataListe">';
     switch ($value[0]) {
+	// absent
     case "A":
         $dataInHtml .= '<i class="icon techno-phone3" style="color: red;"></i>';
         break;
+	// emitted
     case "E":
         $dataInHtml .= '<i class="icon techno-phone2" style="color: green;"></i>';
         break;
+	// received
     case "R":
         $dataInHtml .= '<i class="icon techno-phone3" style="color: green;"></i>';
+        break;
+	// not answered 
+	case "U":
+        $dataInHtml .= '<i class="icon techno-phone2" style="color: yellow;"></i>';
         break;
     } 
     $dataInHtml .= '</td>';
@@ -100,13 +107,5 @@ echo <<<MON_HTML
 </html>
  
 MON_HTML;
-
-/*$bbox_sagemcom = bbox_sagemcom::byId($id);
-	if (!is_object($bbox_sagemcom)) { 
-			  
-	 throw new Exception(__('Aucun equipement ne  correspond : Il faut (re)-enregistrer l\'équipement : ', __FILE__) . init('action'));
-	 }*/
-//$serveur = trim($bbox_sagemcom->getConfiguration('BBOX_SERVER_IP'));
-//$link='http://'.$serveur;
 
 ?>

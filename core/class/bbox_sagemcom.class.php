@@ -44,6 +44,8 @@
 //						password save
 // v1.2.3		07/11/208		remove http to allow the use of https
 // v1.2.4		09/06/2019		New TC channel detection method
+// v1.3.0 		05/12/2020		ssl corrected for Jeedom v4
+// v1.3.1 		12/12/2020		Calllog corrected
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
@@ -285,9 +287,9 @@ class bbox_sagemcom extends eqLogic {
                 //     $this->waitBoxReady(120);
                 // }
             }
-
+ 
             // Second, collect data
-            $result = $this->api_request('profile/calllog/'.$voip_line);
+            $result = $this->api_request('voip/fullcalllog/'.$voip_line);
             if ($result == false) {
                 log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox not detected or bad response');
                 $bbox_detection = false;
@@ -296,13 +298,31 @@ class bbox_sagemcom extends eqLogic {
                 if (is_array($calllog)) {
                     foreach ($calllog as $host_key => $host_value) {
                         log::add('bbox_sagemcom', 'debug', '[box_monitor_api] found a call in log with number : ' . $host_value['number']);
-                        if ($host_value['direction']=='E'){
+                      //  if ($host_value['direction']=='E'){
                             $number = $host_value['number'];
-                        } else {
-                            $number = $host_value['name'];
-                        }
-
-                        $calllog_List[] = [$host_value['direction'], $number, $host_value['duration'], $host_value['date']];
+                       // } else {
+                       //     $number = $host_value['name'];
+                       // }
+						if($host_value['type'] == 'in')
+						{
+							if($host_value['answered'] == 0)
+							{
+								$type = 'A';
+							} else {
+								$type = 'R';
+							}
+						} else {
+							if($host_value['answered'] == 0)
+							{
+								$type = 'U';
+							} else {
+								$type = 'E';
+							}
+						}
+					   
+						$date = date('d-m-Y H:i:s', $host_value['date']);
+						log::add('bbox_sagemcom', 'debug', '[box_monitor_api] the call date is : '.$date);
+                        $calllog_List[] = [$type, $number, $host_value['duree'], $date];
                     }
                 } else {
                     log::add('bbox_sagemcom', 'debug', '[box_monitor_api] detect calllog entry is not a array');
