@@ -19,33 +19,34 @@
 // Revision	Date			Comment
 // v0.0.1 		02/04/2015		First release
 // v0.0.2		10/04/2015		Comment in [request_mechanism]
-//                                              corrected http:// added at the
-//                                              beginning of the URL
-//						Specific reboot function added
-//						Write function return corrected
+//                              corrected http:// added at the
+//                              beginning of the URL
+//						        Specific reboot function added
+//						        Write function return corrected
 // v0.0.3 		28/06/2015		All postUpdate parameters moved
-//                                              in "if" statement
-//						xDSL/Cable or Cable function
-//						added
+//                              in "if" statement
+//						        xDSL/Cable or Cable function
+//						        added
 // v0.1.0 		30/06/2015		Bandwidth informations are now
-//                                              computed from Layer3 Service
-//                                              only (more precise)
+//                              computed from Layer3 Service
+//                              only (more precise)
 // v0.1.1 		01/07/2015		Bandwidth results unit changed
-//                                              to bps as in Kbps the value may
-//                                              not be updated for a while
+//                              to bps as in Kbps the value may
+//                              not be updated for a while
 // v0.1.2		03/07/2015		uptime added
-//						pre-configured layout added
+//						        pre-configured layout added
 // v1.0.1 		10/09/2015		robusness improved
 // v1.1.0 		17/09/2015		New API used
 // v1.1.1		25/10/2015		BBox detection command added
 // v1.2.0		28/11/2015		use a configuration file
-// v1.2.1               30/12/2015              add calllog command
+// v1.2.1       30/12/2015      add calllog command
 // v1.2.2		12/08/2018		Remove "trim" function on
-//						password save
+//						        password save
 // v1.2.3		07/11/208		remove http to allow the use of https
 // v1.2.4		09/06/2019		New TC channel detection method
 // v1.3.0 		05/12/2020		ssl corrected for Jeedom v4
 // v1.3.1 		12/12/2020		Calllog corrected
+// v1.3.2       21/12/2020      AES256-SHA added to cypher list
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
@@ -54,9 +55,9 @@ include_file('core', 'bbox_sagemcom', 'config', 'bbox_sagemcom');
 class bbox_sagemcom extends eqLogic {
     /*     * *************************Attributs****************************** */
 
-
-    /*     * ***********************Methode static*************************** */
-
+    /**
+     * Method called after object is updated
+     */
     public function postUpdate() {
         log::add('bbox_sagemcom', 'debug', '[postUpdate] Function called');
 
@@ -546,7 +547,9 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_HEADER, false);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+        curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+        //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+        curl_setopt($http, CURLOPT_SSLVERSION, 6);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         $response = curl_exec($http);
 
@@ -775,7 +778,9 @@ class bbox_sagemcom extends eqLogic {
         $http = curl_init();
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+        curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+        //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+        curl_setopt($http, CURLOPT_SSLVERSION, 6);
         curl_setopt($http, CURLOPT_COOKIEJAR, "/tmp/cookies.txt");
         curl_setopt($http, CURLOPT_POST, 1);
         curl_setopt($http, CURLOPT_POSTFIELDS, 'password=' . $password);
@@ -807,7 +812,9 @@ class bbox_sagemcom extends eqLogic {
         $http = curl_init();
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+        curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+        //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+        curl_setopt($http, CURLOPT_SSLVERSION, 6);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($http, CURLOPT_POSTFIELDS, 'action=' . $action);
@@ -852,7 +859,9 @@ class bbox_sagemcom extends eqLogic {
             curl_setopt($http, CURLOPT_HEADER, false);
             curl_setopt($http, CURLOPT_CUSTOMREQUEST, "DELETE");
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+            curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+            //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+            curl_setopt($http, CURLOPT_SSLVERSION, 6);
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
             $result = curl_exec($http);
             log::add('bbox_sagemcom', 'debug', '[deleteMessage] response is : ' . $result);
@@ -910,7 +919,9 @@ class bbox_sagemcom extends eqLogic {
             $http = curl_init();
             curl_setopt($http, CURLOPT_URL, $rurl);
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+            curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+            //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+            curl_setopt($http, CURLOPT_SSLVERSION, 6);
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
             curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
             $result = curl_exec($http);
@@ -1100,7 +1111,9 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_URL, $rurl);
         curl_setopt($http, CURLOPT_HEADER, false);
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+        curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+        //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+        curl_setopt($http, CURLOPT_SSLVERSION, 6);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         $response = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[api_request] Response is : ' . $response);
@@ -1117,7 +1130,9 @@ class bbox_sagemcom extends eqLogic {
         curl_setopt($http, CURLOPT_POST, 1);
         curl_setopt($http, CURLOPT_POSTFIELDS, 'ring_timeout=function (){}');
         curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+        curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+        //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+        curl_setopt($http, CURLOPT_SSLVERSION, 6);
         curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
         $response = curl_exec($http);
         log::add('bbox_sagemcom', 'debug', '[api_request] Response is : ' . $response);
@@ -1292,7 +1307,9 @@ class bbox_sagemcomCmd extends cmd {
                 curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($http, CURLOPT_POST, 1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, 'luminosity=100');
-				curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+                curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+                //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+                curl_setopt($http, CURLOPT_SSLVERSION, 6);
                 curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                 $result = curl_exec($http);
                 log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $result);
@@ -1325,7 +1342,9 @@ class bbox_sagemcomCmd extends cmd {
                 curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($http, CURLOPT_POST, 1);
                 curl_setopt($http, CURLOPT_POSTFIELDS, 'luminosity=0');
-				curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+                curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+                //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+                curl_setopt($http, CURLOPT_SSLVERSION, 6);
                 curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                 $result = curl_exec($http);
                 log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $result);
@@ -1360,7 +1379,9 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_POST, 1);
                     curl_setopt($http, CURLOPT_POSTFIELDS, 'radio.enable=1');
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+                    curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+                    //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+                    curl_setopt($http, CURLOPT_SSLVERSION, 6);
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
@@ -1384,7 +1405,9 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_POST, 1);
                     curl_setopt($http, CURLOPT_POSTFIELDS, 'radio.enable=0');
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+                    curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+                    //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+                    curl_setopt($http, CURLOPT_SSLVERSION, 6);
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
@@ -1418,7 +1441,9 @@ class bbox_sagemcomCmd extends cmd {
                     curl_setopt($http, CURLOPT_HEADER, false);
                     curl_setopt($http, CURLOPT_CUSTOMREQUEST, "DELETE");
                     curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+                    curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1:AES256-SHA');
+                    //curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT');
+                    curl_setopt($http, CURLOPT_SSLVERSION, 6);
                     curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
                     $response = curl_exec($http);
                     log::add('bbox_sagemcom', 'debug', '[execute] Response is : ' . $response);
