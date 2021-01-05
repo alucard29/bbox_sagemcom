@@ -7,28 +7,42 @@
     }
 </style>
 
-<!--<div style="width:70px; min-height:70px;" class="cmd cursor cmd-widget tooltips container-fluid" data-type="info" data-subtype="numeric" data-cmd_id="#id#">-->
-<div style="width:70px; min-height:70px;" class="cmd cursor cmd-widget tooltips container-fluid" data-type="info" data-subtype="numeric" data-cmd_id="#id#">
-	<center>
-		<span class="cmdName" style="font-weight: bold;font-size : 12px;">#valueName#</span>
-		<span style="font-size: 2.5em;" class="boutonWifi iconWifi#id#"></span>
-	</center>
+<div class="cmd cmd-widget cursor tooltipstered" data-type="action" data-subtype="other" data-cmd_id="#id#" data-cmd_uid="#uid#">
+	<div class="title">
+		<div class="cmdName">#valueName#</div>
+	</div>
+	<div class="content-sm">
+		<span style="font-size: 2.5em;" class="boutonWifi action iconWifi#id#"></span>
+	</div>
 	<script>
-		$(".iconWifi#id#").empty();
-		if ("#state#" == "1") {
-			$(".iconWifi#id#").append("<i class='fa fa-wifi' title='Eteindre le Wifi'></i>").css("color", "lime");
-			if (jeedom.cmd.normalizeName("#name#") == "on") {
-				$(".cmd[data-cmd_id=#id#]").hide();
-			}
-		} else {
-			$(".iconWifi#id#").append("<i class='fa fa-wifi' title='Allumer le Wifi'></i>").css("color", "red");
-			if (jeedom.cmd.normalizeName("#name#") == "off") {
-				$(".cmd[data-cmd_id=#id#]").hide();
+
+		jeedom.cmd.update['#id#'] = function(_options) {
+			$(".iconWifi#id#").empty();
+			var cmd = $('.cmd[data-cmd_id=#id#]')
+			if (_options.display_value == '1' || _options.display_value == 1 || _options.display_value == '99' || _options.display_value == 99 || _options.display_value == 'on') {
+				if (jeedom.cmd.normalizeName('#name#') == 'on') {
+					cmd.hide()
+				} else {
+					cmd.show()
+				}
+				$(".iconWifi#id#").append("<i class='fa fa-wifi' title='Eteindre le Wifi'></i>").css("color", "lime");
+
+			} else if (_options.display_value == '0' || _options.display_value == 0 ||  _options.display_value == 'off') {
+				if (jeedom.cmd.normalizeName('#name#') == 'off') {
+					cmd.hide()
+				} else {
+					cmd.show()
+				}
+				$(".iconWifi#id#").append("<i class='fa fa-wifi' title='Allumer le Wifi'></i>").css("color", "red");
 			}
 		}
-		$(".cmd[data-cmd_id=#id#] .action").off();
-		$(".cmd[data-cmd_id=#id#] .action").on("click", function() {
-			jeedom.cmd.execute({id: "#id#"});
-		});
+	
+		jeedom.cmd.update['#id#']({display_value:'#state#'})
+	
+		$('.cmd[data-cmd_uid=#uid#] .action').off().on('click', function (event) {
+		  event.preventDefault()
+		  event.stopPropagation()
+		  jeedom.cmd.execute({id: '#id#'})
+		})
 	</script>
 </div>

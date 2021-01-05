@@ -19,8 +19,7 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 function bbox_sagemcom_update() {
-	//log::add('bbox', 'error', 'Merci de re-sauvegarder votre equipement (Plugins -> Monitoring -> BBox Sagemcom)');
-        log::add('bbox', 'error', 'Attention ! dernière mise à jour avant la suppression du mode par défaut. Merci de m\'envoyer un mp si vous utilisez le mode "défaut".');
+	log::add('bbox', 'error', 'Merci de re-sauvegarder votre equipement (Plugins -> Monitoring -> BBox Sagemcom)');
 }
 
 ?>

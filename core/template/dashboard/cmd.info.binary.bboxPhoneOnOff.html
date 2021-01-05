@@ -1,8 +1,10 @@
-<div style="width:70px; min-height:70px;" class="cmd tooltips cmd-widget container-fluid" data-type="info" data-subtype="binary" data-cmd_id="#id#">
-	<center>
-		<span class="cmdName" style="font-weight: bold;font-size : 12px;d">#name#</span><br>
-		<span style="font-size: 2.5em;" class="action" id="iconCmd#id#"></span>
-	</center>
+<div class="cmd cmd-widget cursor tooltipstered" data-type="info" data-subtype="binary" data-cmd_id="#id#">
+	<div class="title">
+		<div class="cmdName">#name#</div>
+	</div>
+	<div class="content-sm">
+		<span style="font-size: 2.5em;" class="action"  id="iconCmd#id#"></span>
+	</div>
 	<script>
 		if ("#state#" == "1") {
 			$("#iconCmd#id#").append("<i class='icon techno-phone25'></i>").css('color','lime');

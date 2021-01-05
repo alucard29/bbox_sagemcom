@@ -25,11 +25,6 @@ $object = cmd::byId($id);
 $bbox_id = $object->getEqLogic_id();
 $bbox_obj = bbox_sagemcom::byId($bbox_id);
 
-$useAPI = $bbox_obj->getConfiguration('BBOX_USE_API');
-if ($useAPI != 'api') {
-    throw new Exception('{{Fonction uniquement accessible aux BBoxs utilisants l\'API}}');
-}
-
 $messagelog_obj = $bbox_obj->getCmd('info','messagelog'); 
 $messagelogId=$messagelog_obj->getId();
 $messagelogLogicalId=$messagelog_obj->getLogicalId();
@@ -67,24 +62,26 @@ $messagelog = json_decode($data);
         </thead>
         <tbody>
             <?php
-                foreach ($messagelog as $key => $value) {
-                    $data_table .= '<tr id="log' . $value[5] . '" class="dataListe"';
-                    if ($value[0]=='Read') {
-                        $data_table .= '>';
-                    } else {
-                        $data_table .= 'style="font-weight: bold;">';
+                if(!empty($messagelog)) {
+                    foreach ($messagelog as $key => $value) {
+                        $data_table .= '<tr id="log' . $value[5] . '" class="dataListe"';
+                        if ($value[0]=='Read') {
+                            $data_table .= '>';
+                        } else {
+                            $data_table .= 'style="font-weight: bold;">';
+                        }
+                        $data_table .= '<td class="dataListe">';
+                        if ($value[0]!='Read') {
+                            $data_table .= '<a class="downloadMessage" data-id="'.$value[5].'" data-link="'.$value[4].'" href="'.$value[4].'"><i class="fa fa-download"></i></a>';
+                        }
+                        $data_table .= '</td>';
+                        $data_table .= '<td class="dataListe">' . $value[1] . '</td>';
+                        $data_table .= '<td class="dataListe">' . $value[2] . '</td>';
+                        $data_table .= '<td class="dataListe">' . $value[3] . '</td>';
+                        $data_table .= '<td class="dataListe"><a class="deleteMessage" data-id="'.$value[5].'"><i class="fa fa-trash"></i></a></td></tr>';
                     }
-                    $data_table .= '<td class="dataListe">';
-                    if ($value[0]!='Read') {
-                        $data_table .= '<a class="downloadMessage" data-id="'.$value[5].'" data-link="'.$value[4].'" href="'.$value[4].'"><i class="fa fa-download"></i></a>';
-                    }
-                    $data_table .= '</td>';
-                    $data_table .= '<td class="dataListe">' . $value[1] . '</td>';
-                    $data_table .= '<td class="dataListe">' . $value[2] . '</td>';
-                    $data_table .= '<td class="dataListe">' . $value[3] . '</td>';
-                    $data_table .= '<td class="dataListe"><a class="deleteMessage" data-id="'.$value[5].'"><i class="fa fa-trash"></i></a></td></tr>';
+                    echo $data_table;
                 }
-                echo $data_table;
             ?>
 
         </tbody>

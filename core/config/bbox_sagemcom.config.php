@@ -17,7 +17,22 @@
  */
 
 global $listCmdBbox_sagemcom;
+
+$index = 1;
+
 $listCmdBbox_sagemcom = array(
+    array(
+        'name' => 'Actualiser',
+        'type' => 'action',
+        'subType' => 'other',
+        'logicalId' => 'refresh',
+        'description' => 'Actualiser les informations de la BBox',
+        'group' => 'System',
+        'configuration' => array(
+            'order' => $index++,
+            'visible' => 1,
+        ),
+    ),
     array(
         'name' => 'Présence Box',
         'type' => 'info',
@@ -25,9 +40,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'box_state',
         'description' => 'Indique la détection de la BBox',
         'group' => 'System',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 1,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -38,9 +52,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'reboot_box',
         'description' => 'Redémarrage de la box',
         'group' => 'System',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 2,
+            'order' => $index++,
             'visible' => 1,
             'value' => 'box_state',
             'template' => 'bboxState',
@@ -53,9 +66,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'lightOn',
         'description' => 'Allumage des lumières de la box',
         'group' => 'System',
-        'mode' => array('api'),
         'configuration' => array(
-            'order' => 3,
+            'order' => $index++,
             'visible' => 1,
             'value' => 'lightState',
             'template' => 'bboxLightOnOff',
@@ -68,9 +80,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'lightOff',
         'description' => 'Extinction des lumières de la box',
         'group' => 'System',
-        'mode' => array('api'),
         'configuration' => array(
-            'order' => 4,
+            'order' => $index++,
             'visible' => 1,
             'value' => 'lightState',
             'template' => 'bboxLightOnOff',
@@ -83,9 +94,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'lightState',
         'description' => 'Etat des lumières de la box',
         'group' => 'System',
-        'mode' => array('api'),
         'configuration' => array(
-            'order' => 5,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -96,9 +106,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'wan_state',
         'description' => 'Indique l\'état de la synchronisation',
         'group' => 'System',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 6,
+            'order' => $index++,
             'visible' => 1,
             'template' => 'bboxInternetOnOff',
         ),
@@ -110,9 +119,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'wifi_state',
         'description' => 'Indique l\'état du Wifi',
         'group' => 'Wifi',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 7,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -123,9 +131,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'wifi_start',
         'description' => 'Activer le Wifi',
         'group' => 'Wifi',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 8,
+            'order' => $index++,
             'visible' => 1,
             'template' => 'bboxWifiOnOff',
             'value' => 'wifi_state',
@@ -138,9 +145,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'wifi_stop',
         'description' => 'Desactiver le Wifi',
         'group' => 'Wifi',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 9,
+            'order' => $index++,
             'visible' => 1,
             'template' => 'bboxWifiOnOff',
             'value' => 'wifi_state',
@@ -153,9 +159,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'tv_state',
         'description' => 'Indique la présence d\'un décodeur TV',
         'group' => 'TV',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 10,
+            'order' => $index++,
             'visible' => 1,
             'template' => 'bboxTvOnOff',
         ),
@@ -167,9 +172,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'voip_state',
         'description' => 'Indique l\'état du service VoIP',
         'group' => 'VoIP',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 11,
+            'order' => $index++,
             'visible' => 1,
             'returnAfter' => 1,
             'template' => 'bboxPhoneOnOff',
@@ -182,9 +186,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'public_ip',
         'description' => 'Indique l\'adresse IP publique de la Box',
         'group' => 'System',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 12,
+            'order' => $index++,
             'visible' => 1,
         ),
     ),
@@ -195,9 +198,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'phone_nb',
         'description' => 'Indique le numéro de téléphone associé au service VoIP',
         'group' => 'VoIP',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 13,
+            'order' => $index++,
             'visible' => 1,
         ),
     ),
@@ -208,9 +210,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'uptime',
         'description' => 'Temps depuis le dernier démarrage',
         'group' => 'System',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 14,
+            'order' => $index++,
             'visible' => 1,
             'returnAfter' => 1,
         ),
@@ -223,9 +224,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'rate_down',
         'description' => 'Débit descendant',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 15,
+            'order' => $index++,
             'visible' => 1,
             'minValue' => 0,
         ),
@@ -238,9 +238,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'rate_up',
         'description' => 'Débit ascendant',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 16,
+            'order' => $index++,
             'visible' => 1,
             'minValue' => 0,
         ),
@@ -253,9 +252,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'data_received',
         'description' => 'Modulo du nombre d\'octects reçus',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 17,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -267,9 +265,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'data_send',
         'description' => 'Modulo du nombre d\'octects envoyés',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 18,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -281,9 +278,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'var_data_received',
         'description' => 'Variation du nombre d\'octects reçus depuis la dernière actualisation',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 19,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -295,9 +291,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'var_data_send',
         'description' => 'Variation du nombre d\'octects envoyés depuis la dernière actualisation',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 20,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),
@@ -308,9 +303,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'received_calls',
         'description' => 'Nombre d\'appels manqués',
         'group' => 'VoIP',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 21,
+            'order' => $index++,
             'visible' => 1,
             'returnBefore' => 1,
             'template' => 'bboxMissingCalls',
@@ -323,9 +317,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'message_waiting',
         'description' => 'Nombre de messages vocaux',
         'group' => 'VoIP',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 22,
+            'order' => $index++,
             'visible' => 1,
             'template' => 'bboxWaitingMessages',
         ),
@@ -337,9 +330,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'phone1_ring',
         'description' => 'Faire sonner le téléphone (test)',
         'group' => 'VoIP',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 23,
+            'order' => $index++,
             'visible' => 1,
             'returnBefore' => 1,
         ),
@@ -351,9 +343,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'phone1_unring',
         'description' => 'terminer le test de sonnerie du téléphone',
         'group' => 'VoIP',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 24,
+            'order' => $index++,
             'visible' => 1,
             'returnAfter' => 1,
         ),
@@ -365,9 +356,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'connected_devices',
         'description' => 'Nombre de périphériques connectés au réseau',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 25,
+            'order' => $index++,
             'visible' => 1,
             'returnAfter' => 1,
             'template' => 'bboxPeripherical',
@@ -380,9 +370,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'devices_List',
         'description' => 'Liste des périphériques connectés au réseau',
         'group' => 'Statistiques',
-        'mode' => array('default','api'),
         'configuration' => array(
-            'order' => 26,
+            'order' => $index++,
             'visible' => 0,
             'template' => 'bboxList',
         ),
@@ -394,9 +383,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'calllog',
         'description' => 'liste les appels reçus ou émis',
         'group' => 'VoIP',
-        'mode' => array('api'),
         'configuration' => array(
-            'order' => 27,
+            'order' => $index++,
             'visible' => 0,
             'template' => 'calllogList',
         ),
@@ -408,9 +396,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'messagelog',
         'description' => 'liste les messages enregistrés',
         'group' => 'VoIP',
-        'mode' => array('api'),
         'configuration' => array(
-            'order' => 28,
+            'order' => $index++,
             'visible' => 0,
             'template' => 'messageList',
         ),
@@ -422,9 +409,8 @@ $listCmdBbox_sagemcom = array(
         'logicalId' => 'currentTvChannel',
         'description' => 'Chaîne courante',
         'group' => 'TV',
-        'mode' => array('api'),
         'configuration' => array(
-            'order' => 29,
+            'order' => $index++,
             'visible' => 0,
         ),
     ),

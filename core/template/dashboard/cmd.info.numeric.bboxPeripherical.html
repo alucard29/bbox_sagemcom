@@ -1,13 +1,17 @@
-<div style="width:90px; min-height:80px;cursor: pointer;" class="cmd tooltips cmd-widget container-fluid" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Afficher la liste des périphériques">
-    <center>
-		<span class="cmdName" style="font-weight: bold;font-size : 12px;">#name_display#</span>
-		<span style="font-size: 2.5em;" class="action" id="iconCmd#id#"></span>
-	</center>
-    <!--</a>  -->
+<div class="cmd cmd-widget cursor tooltipstered" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Liste des périphériques">
+  <div class="title">
+          <div class="cmdName">#name_display#</div>
+  </div>
+  <div class="content-sm">
+          <span class="iconCmd"  id="iconCmd#id#"></span>
+  </div>
+  <div>
+          <span class="iconCmd">#state#</span>
+  </div>
 	<script>
-            var temp =  #state#;
+            //var temp =  #state#;
             $('#iconCmd#id#').append('<i class="fa fa-sitemap"></i>');
-            $('#iconCmd#id#').parent().append('<span style="font-weight: bold;font-size: 20px;" ><br>'+temp+'</span>');
+            //$('#iconCmd#id#').parent().append('<div style="font-weight: bold;font-size: 20px;" >'+temp+'</div>');
             $('#iconCmd#id#').on('click', function() {
                 $('#md_modal2').dialog({
                         title: "Liste des périphériques",

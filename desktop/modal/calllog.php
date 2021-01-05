@@ -25,47 +25,46 @@ $object = cmd::byId($id);
 $bbox_id = $object->getEqLogic_id();
 $bbox_obj = bbox_sagemcom::byId($bbox_id);
 
-$useAPI = $bbox_obj->getConfiguration('BBOX_USE_API');
-if ($useAPI != 'api') {
-    throw new Exception('{{Fonction uniquement accessible aux BBoxs utilisants l\'API}}');
-}
-
 $calllog_obj = $bbox_obj->getCmd('info','calllog'); 
 $calllogId=$calllog_obj->getId();
 $calllogLogicalId=$calllog_obj->getLogicalId();
 $data=$calllog_obj->execCmd(null, 2);
 $calllog = json_decode($data);
-$reversedCalllog = array_reverse($calllog);
+if(!empty($calllog)){
+    $reversedCalllog = array_reverse($calllog);
+}
 
 $indent=1;
 
 $dataInHtml = '<table class="bbox_table"><tr><th class="dataListe"></th><th class="dataListe">N°</th><th class="dataListe">Durée (s)</th><th class="dataListe">Date</th></tr>';
-foreach ($reversedCalllog as $key => $value) {
-    $dataInHtml .= '<tr id="log' . $indent . '" class="dataListe">';
-    $dataInHtml .= '<td class="dataListe">';
-    switch ($value[0]) {
-	// absent
-    case "A":
-        $dataInHtml .= '<i class="icon techno-phone3" style="color: red;"></i>';
-        break;
-	// emitted
-    case "E":
-        $dataInHtml .= '<i class="icon techno-phone2" style="color: green;"></i>';
-        break;
-	// received
-    case "R":
-        $dataInHtml .= '<i class="icon techno-phone3" style="color: green;"></i>';
-        break;
-	// not answered 
-	case "U":
-        $dataInHtml .= '<i class="icon techno-phone2" style="color: yellow;"></i>';
-        break;
-    } 
-    $dataInHtml .= '</td>';
-    $dataInHtml .= '<td class="dataListe">' . $value[1] . '</td>';
-    $dataInHtml .= '<td class="dataListe">' . $value[2] . '</td>';
-    $dataInHtml .= '<td class="dataListe">' . $value[3] . '</td></tr>';
-    $indent++;
+if(!empty($calllog)){
+    foreach ($reversedCalllog as $key => $value) {
+        $dataInHtml .= '<tr id="log' . $indent . '" class="dataListe">';
+        $dataInHtml .= '<td class="dataListe">';
+        switch ($value[0]) {
+        // absent
+        case "A":
+            $dataInHtml .= '<i class="icon techno-phone3" style="color: red;"></i>';
+            break;
+        // emitted
+        case "E":
+            $dataInHtml .= '<i class="icon techno-phone2" style="color: green;"></i>';
+            break;
+        // received+
+        case "R":
+            $dataInHtml .= '<i class="icon techno-phone3" style="color: green;"></i>';
+            break;
+        // not answered 
+        case "U":
+            $dataInHtml .= '<i class="icon techno-phone2" style="color: yellow;"></i>';
+            break;
+        } 
+        $dataInHtml .= '</td>';
+        $dataInHtml .= '<td class="dataListe">' . $value[1] . '</td>';
+        $dataInHtml .= '<td class="dataListe">' . $value[2] . '</td>';
+        $dataInHtml .= '<td class="dataListe">' . $value[3] . '</td></tr>';
+        $indent++;
+    }
 }
 $dataInHtml.= '</table>';
 
