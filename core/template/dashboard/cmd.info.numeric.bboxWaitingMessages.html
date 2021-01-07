@@ -6,12 +6,17 @@
             <span class="iconCmd"  id="iconCmd#id#"></span>
     </div>
     <div>
-            <span class="iconCmd">#state#</span>
+            <span class="iconCmd stateCmd"></span>
     </div>
 	<script>
-            //var temp = #state#
             $('#iconCmd#id#').append('<i class="icon techno-phone1"></i>');
-            //$('#iconCmd#id#').parent().append('<div style="font-weight: bold;font-size: 20px;">'+temp+'</div>');
+
+            jeedom.cmd.update['#id#'] = function(_options){
+			$('.cmd[data-cmd_id=#id#]').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br/>{{Date de collecte}} : '+_options.collectDate)
+			$('.cmd[data-cmd_id=#id#] .stateCmd').empty().append(_options.display_value);
+		}
+                jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
+            
             $('#iconCmd#id#').on('click', function() {
                 $('#md_modal2').dialog({
                         title: "Liste des messages",
@@ -20,7 +25,7 @@
                         position: {my: "center", at:"center", of: window }
                 });
 
-                $('#md_modal2').load('index.php?v=d&plugin=bbox_sagemcom&modal=messagelog&id='+ #id#).dialog('open');
+                $('#md_modal2').load('index.php?v=d&plugin=bbox_sagemcom&modal=messagelog&id=#id#').dialog('open');
             });
 	</script>
 </div>

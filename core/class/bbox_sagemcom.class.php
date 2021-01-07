@@ -59,7 +59,9 @@ class bbox_sagemcom extends eqLogic {
 
     /*     * ***********************Methode static*************************** */
 
-    // Function called by Jeedom every minute
+    /**
+     *  Function called by Jeedom every minute
+     */
     public static function cron() {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
 
@@ -84,7 +86,7 @@ class bbox_sagemcom extends eqLogic {
     /*     * *********************Méthodes d'instance************************* */
 
     /**
-     * Method called after object is updated
+     * Jeedom Method called after object is updated
      */
     public function postUpdate() {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
@@ -123,6 +125,9 @@ class bbox_sagemcom extends eqLogic {
         }
     }
 
+    /**
+     * Jeedom Method called after object is saved
+     */
     public function postSave() {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
         // Test if the custom widget shall be used
@@ -147,6 +152,11 @@ class bbox_sagemcom extends eqLogic {
         }
     }
 
+    /**
+     * Add a new Jeedom Command
+     * 
+     * @param array $cmd command parameters
+     */
     public function addNewBBoxCmd($cmd) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for command : ' . $cmd['name']);
         if ($cmd) {
@@ -172,6 +182,11 @@ class bbox_sagemcom extends eqLogic {
         }
     }
 
+    /**
+     * Configure the Jeedom Command
+     * 
+     * @param array $cmd command parameters
+     */
     public function configureBBoxCmd($cmd) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for command : ' . $cmd['name']);
         if ($cmd) {
@@ -229,25 +244,15 @@ class bbox_sagemcom extends eqLogic {
         }
     }
 
+    /**
+     * TBC
+     */
     public function box_monitor_api() {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-
-        // get the debian version
-
-        $connexion = $this->getConfiguration('BBOX_CONNEXION_TYPE');
-        if ($connexion == 0) {
-            $type = "cable";
-        } else {
-            $type = "xdsl";
-        }
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Selected connexion type is : ' . $type);
-
-        $serveurIp = $this->getBboxIp();
-        
-        $bbox_detection = true;
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');      
 
         // wan connection detection
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Try to find a Wan connection');
+        $bbox_detection = true;
         $wan_connected = 0;
         $wan = "";
         $result = $this->api_request('wan/ip');
@@ -273,7 +278,7 @@ class bbox_sagemcom extends eqLogic {
             $bbox_detection = false;
         } else {
             if (array_key_exists('exception', $result)) {
-                $re_connect = $this->open_api_session($serveurIp);
+                $re_connect = $this->refreshToken();
                 $result = $this->api_request('voip');
             }
             if (isset($result[0]['voip'][0]['status']) && ($result[0]['voip'][0]['status'] == 'Up')) {
@@ -287,7 +292,7 @@ class bbox_sagemcom extends eqLogic {
 
         // Call Log | added the 30/12/2015 | restriction : Apply only for 1 line (the fist)
         // First, refresh data
-        $re_connect = $this->open_api_session($serveurIp);
+        $re_connect = $this->refreshToken();
         if ($re_connect == true) {
             $result = $this->refresh_bbox('callLog');
             $this->waitBoxReady(120);
@@ -298,7 +303,7 @@ class bbox_sagemcom extends eqLogic {
                 // FIXME: $result is true here, not an array and what's the point to reconnect etc?
 
                 // if (array_key_exists('exception', $result)) {
-                //     $re_connect = $this->open_api_session();
+                //     $re_connect = $this->refreshToken();
                 //     $result = $this->refresh_bbox('callLog');
                 //     $this->waitBoxReady(120);
                 // }
@@ -323,22 +328,22 @@ class bbox_sagemcom extends eqLogic {
 						{
 							if($host_value['answered'] == 0)
 							{
-								$type = 'A';
+								$callType = 'A';
 							} else {
-								$type = 'R';
+								$callType = 'R';
 							}
 						} else {
 							if($host_value['answered'] == 0)
 							{
-								$type = 'U';
+								$callType = 'U';
 							} else {
-								$type = 'E';
+								$callType = 'E';
 							}
 						}
 					   
 						$date = date('d-m-Y H:i:s', $host_value['date']);
 						log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] the call date is : '.$date);
-                        $calllog_List[] = [$type, $number, $host_value['duree'], $date];
+                        $calllog_List[] = [$callType, $number, $host_value['duree'], $date];
                     }
                 } else {
                     log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] detect calllog entry is not a array');
@@ -393,6 +398,15 @@ class bbox_sagemcom extends eqLogic {
         }
 
         // Bandwidth calculation (depends on the selected mode)
+        $connexion = $this->getConfiguration('BBOX_CONNEXION_TYPE');
+        if ($connexion == 0) {
+            $type = "cable";
+        } else {
+            $type = "xdsl";
+        }
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Selected connexion type is : ' . $type);
+
+
         if ($type == "xdsl") {
             // results are given in kbps
             $rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['bandwidth']) * 1000);
@@ -440,19 +454,19 @@ class bbox_sagemcom extends eqLogic {
         //$tvChannelInformation = "";
         //$result = $this->api_request('iptv');
         //if ($result == false) {
-        //    log::add('bbox_sagemcom', 'debug', '[box_monitor_api] BBox not detected or bad response');
+        //    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
         //} else {
         //    $iptv = $result[0]['iptv'];
         //    if (is_array($iptv)) {
         //        foreach ($iptv as $host_key => $host_value) {
-        //            log::add('bbox_sagemcom', 'debug', '[box_monitor_api] Start devices detection with Key : ' . $host_key);
+        //            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Start devices detection with Key : ' . $host_key);
         //            if (isset($host_value['name']) && $host_value['name'] != "") {
-        //                log::add('bbox_sagemcom', 'debug', '[box_monitor_api] Current channel is : '. $host_value['name']);
+        //                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Current channel is : '. $host_value['name']);
         //                $currentTvChannel = $host_value['name'];
         //            }
         //        }
         //    } else {
-        //        log::add('bbox_sagemcom', 'error', '[box_monitor_api] detect iptv entry is not a array');
+        //        log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] detect iptv entry is not a array');
         //    }
         //}
 
@@ -511,50 +525,29 @@ class bbox_sagemcom extends eqLogic {
 
             log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Process for : '.$cmd_id.' ended with '.$checkAndUpdateCmdResult ? 'Success' : 'Failure');
 
-            /*$stored_value = $cmd->execCmd(null, 2);
-            $cmd->setCollectDate('');
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Process for : ' . $cmd_id);
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Store value is : ' . $stored_value);
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Response value is : ' . $retourbbox[$cmd_id]);
-
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Test if ' . $cmd_id . ' Value has changed');
-
-            // Update value only if needed
-            if ($stored_value == null || $stored_value != $retourbbox[$cmd_id]) {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Update ' . $cmd_id . ' value with : ' . $retourbbox[$cmd_id]);
-                $cmd->event($retourbbox[$cmd_id]);
-            }*/
-
             // Update the rate down max value if needed
-            if ($cmd_id == 'rate_down') {
-                $maxStoredRateDown = $cmd->getCache('maxValue');
-                //$maxStoredRateDown = $cmd->getConfiguration('maxValue');
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Max stored value is : ' . $maxStoredRateDown);
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Max response value is : ' . floatval($retourbbox['max_rate_down']));
-                if ($maxStoredRateDown != floatval($retourbbox['max_rate_down'])) {
-                    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Update ' . $cmd_id . ' maxValue with : ' . $retourbbox['max_rate_down']);
-                    $cmd->setCache('maxValue', floatval($retourbbox['max_rate_down']));
-                    //$cmd->setConfiguration('maxValue', floatval($retourbbox['max_rate_down']));
-                    //$cmd->save();
-                }
-            }
-
+            if ($cmd_id == 'rate_down') $this->updateMaxRate($cmd, $cmd_id, floatval($retourbbox['max_rate_down']));
+              
             // Update the rate up max value if needed
-            if ($cmd_id == 'rate_up') {
-                $maxStoredRateUp = $cmd->getCache('maxValue');
-                //$maxStoredRateUp = $cmd->getConfiguration('maxValue');
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Max stored value is : ' . $maxStoredRateUp);
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Max response value is : ' . floatval($retourbbox['max_rate_up']));
-                if ($maxStoredRateUp != floatval($retourbbox['max_rate_up'])) {
-                    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Update ' . $cmd_id . ' maxValue with : ' . $retourbbox['max_rate_up']);
-                    //$cmd->setConfiguration('maxValue', floatval($retourbbox['max_rate_up']));
-                    $cmd->setCache('maxValue', floatval($retourbbox['max_rate_up']));
-                    //$cmd->save();
-                }
-            }
+            if ($cmd_id == 'rate_up') $this->updateMaxRate($cmd, $cmd_id, floatval($retourbbox['max_rate_up']));
         }
-        //}
         return true;
+    }
+
+    /**
+     * Update cache max value of the command if needed
+     * 
+     * @param object $cmd the Command
+     * @param string $cmd_id the Command Logical Id
+     */
+    public function updateMaxRate(object $cmd, string $cmdId, float $reguestValue)
+    {
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for : '.$cmdId.' Max stored value was : '.$maxStored.' when Max response value is : '.$reguestValue);
+        $maxStored = $cmd->getConfiguration('maxValue');
+        if ($maxStored != $reguestValue) {
+            $cmd->setConfiguration('maxValue', $reguestValue);
+            $cmd->save();
+        }
     }
 
     /**
@@ -597,67 +590,29 @@ class bbox_sagemcom extends eqLogic {
 
     public function api_request($type) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $serveur = trim($this->getConfiguration('BBOX_SERVER_IP'));
-        $rurl = $serveur . '/api/v1/' . $type;
-        if ($serveur == '') { // Cannot send request without an URL
-            throw new Exception('Adresse de la BBox non-renseignée');
-        }
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Send request to : ' . $rurl);
 
-        // Send request using Jeedom API
-        //$http = new com_http($rurl);
-        $http = curl_init();
-        curl_setopt($http, CURLOPT_URL, $rurl);
-        curl_setopt($http, CURLOPT_HEADER, false);
-        curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-        if($this->canLowerSslSecurity()) curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
-        curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
-        $response = curl_exec($http);
+        $response = $this->sendCurlRequest('/api/v1/'.$type,false);
 
-        if (empty($response)) {
-            // some kind of an error happened
-            $error = (curl_error($http));
-            curl_close($http); // close cURL handler
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Error is : ' . $error);
+        $decoded_response = json_decode($response, true);
+
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Decoded response is : ' . $response);
+
+        // Test if the BBox has returned an error (or no JSON response)
+        if ((json_last_error() != 0) || array_key_exists('error', $decoded_response)) {
+            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Error or bad JSON respond from the BBox.');
             return false;
         } else {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Response is : ' . $response);
-            curl_close($http); // close cURL handler
-
-            $decoded_response = json_decode($response, true);
-
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Decoded response is : ' . $response);
-
-            // Test if the BBox has returned an error (or no JSON response)
-            if ((json_last_error() != 0) || array_key_exists('error', $decoded_response)) {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Error or bad JSON respond from the BBox.');
-                return false;
-            } else {
-                return $decoded_response;
-            }
+            return $decoded_response;
         }
     }
 
     // Function used to request a new cookie
-    public function open_api_session($serveurIp) {
+    public function refreshToken() {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
         $password = $this->getConfiguration('BBOX_PSSWD');
-        $rurl = $serveurIp . '/api/v1/login';
-        // Cannot send request without URL
-        if ($serveurIp == '') {
-            throw new Exception('Adresse de la BBox non-renseignée');
-        }
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] send request to : ' . $rurl);
-        $http = curl_init();
-        curl_setopt($http, CURLOPT_URL, $rurl);
-        curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-        if($this->canLowerSslSecurity()) curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
-        curl_setopt($http, CURLOPT_COOKIEJAR, "/tmp/cookies.txt");
-        curl_setopt($http, CURLOPT_POST, 1);
-        curl_setopt($http, CURLOPT_POSTFIELDS, 'password=' . $password);
-        $result = curl_exec($http);
+        $result = $this->sendCurlRequest('/api/v1/login',true,null,'password='.$password);
+
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] response is : ' . $result);
-        curl_close($http);
         $decodedResult = json_decode($result, true);
         if (is_array($decodedResult)){
             if (array_key_exists('exception', $decodedResult)) {
@@ -673,23 +628,8 @@ class bbox_sagemcom extends eqLogic {
 
     public function refresh_bbox($action) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $serveur = trim($this->getConfiguration('BBOX_SERVER_IP'));
-        $rurl = $serveur . '/api/v1/profile/refresh';
-        // Cannot send request without URL
-        if ($serveur == '') {
-            throw new Exception('Adresse de la BBox non-renseignée');
-        }
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Send request to : ' . $rurl);
-        $http = curl_init();
-        curl_setopt($http, CURLOPT_URL, $rurl);
-        curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-        if($this->canLowerSslSecurity()) curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
-        curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
-        curl_setopt($http, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($http, CURLOPT_POSTFIELDS, 'action=' . $action);
-        $result = curl_exec($http);
+        $result = $this->sendCurlRequest('/api/v1/profile/refresh',false,'PUT','action='.$action);
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] response is : ' . $result);
-        curl_close($http);
         return true;
     }
 
@@ -806,8 +746,7 @@ class bbox_sagemcom extends eqLogic {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
 
         $var_last_value = $this->getCache($var_name);
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Stored value was : ' . $var_last_value);
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] New value is : ' . $actual_value);
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Stored value was : '.$var_last_value.' when the new one is : '. $actual_value);
 
         // At start-up, the last value is not yet set
         if (!is_numeric($var_last_value)) {
@@ -833,26 +772,40 @@ class bbox_sagemcom extends eqLogic {
     /**
      * Retrieve the configured bbox IP Address
      * 
-     * @return string
+     * @return mixed false if failed or the serverIP
      */
     public function getBboxIp()
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        return trim($this->getConfiguration('BBOX_SERVER_IP'));
+        $server = $this->getConfiguration('BBOX_SERVER_IP');
+        if ($server == '') { // Cannot send request without an URL
+            throw new Exception('Adresse de la BBox non-renseignée');
+            return false;
+        }
+        return trim($server);
+    }
+
+    /**
+     * Check the BBox Response
+     * 
+     * @param string $response Curl response
+     * @return bool true if the response is the expected one false else
+     */
+    public function responseCheck(string $response)
+    {
+        //Todo
+        return true;
     }
 
     /**
      * Get token from BBox
      * 
-     * @param string $server address
      * @return string the Token
      */
-    public function getToken($server)
+    public function getToken()
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        
-        $url = $server . '/api/v1/device/token';
-        $response = $this->sendCurlRequest($url);
+        $response = $this->sendCurlRequest('/api/v1/device/token',false);
         $decoded_response = json_decode($response, true);
         return $decoded_response[0]['device']['token'];
     }
@@ -864,76 +817,70 @@ class bbox_sagemcom extends eqLogic {
      * @param string $postfield The CURLOPT_POSTFIELDS option
      * @return string Curl execution response
      */
-    public function sendRequestWithToken($function, $postField = null) {
+    public function sendRequestWithToken(string $function, string $postField = null) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $server = $this->getBboxIp();
-        $rurl = $server . '/api/v1/' . $function . '?btoken=' .$this->getToken($server);
-        return $this->sendCurlRequest($rurl,null,$postField);
+        $response = $this->sendCurlRequest('/api/v1/'.$function.'?btoken='.$this->getToken(),false,null,$postField);
+        return $this->responseCheck($response);
     }
 
     /**
      * Send a Curl request
      * 
-     * @param string $url The CURLOPT_URL option
+     * @param string $api The API address part of the URL
+     * @param bool $header The CURLOPT_HEADER option
      * @param string $method The CURLOPT_CUSTOMREQUEST option
      * @param string $postfield The CURLOPT_POSTFIELDS option
-     * @return string Curl execution response
+     * @return mixed Curl execution response or false if failed
      */
-    public function sendCurlRequest(string $url,string $method = null,string $postfield = null)
+    public function sendCurlRequest(string $api,bool $header, string $method = null,string $postfield = null)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
 
-        $http = curl_init();
-        curl_setopt($http, CURLOPT_URL, $url);
-        curl_setopt($http, CURLOPT_HEADER, false);
-        curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
-        if(!is_null($method)) curl_setopt($http, CURLOPT_CUSTOMREQUEST, $method);
-        if(!is_null($postfield))
-        {
-            curl_setopt($http, CURLOPT_POST, true);
-            curl_setopt($http, CURLOPT_POSTFIELDS, $postfield);
-        }
-        if($this->canLowerSslSecurity()) curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
-        curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
-        $result = curl_exec($http);
+        $serverIp = $this->getBboxIp();
+        if($serverIp !== false) {
+            $url = $serverIp.$api;
 
-        foreach(curl_getinfo($http) as $key => $value) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Curl info : '.$key.' is  : '.$value ); 
+            $http = curl_init();
+            curl_setopt($http, CURLOPT_URL, $url);
+            curl_setopt($http, CURLOPT_HEADER, $header);
+            curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+            if(!is_null($method)) curl_setopt($http, CURLOPT_CUSTOMREQUEST, $method);
+            if(!is_null($postfield))
+            {
+                curl_setopt($http, CURLOPT_POST, true);
+                curl_setopt($http, CURLOPT_POSTFIELDS, $postfield);
+            }
+            if($this->canLowerSslSecurity()) curl_setopt($http, CURLOPT_SSL_CIPHER_LIST, 'DEFAULT@SECLEVEL=1');
+            curl_setopt($http, CURLOPT_COOKIEJAR, "/tmp/cookies.txt");
+            curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
+            
+            $result = curl_exec($http);
+    
+            foreach(curl_getinfo($http) as $key => $value) {
+                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Curl info : '.$key.' is  : '.$value ); 
+            }
+            
+            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Response is : ' . $result);
+            curl_close($http);
+            return $result;
+        } else {
+            return false;
         }
-        
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Response is : ' . $result);
-        curl_close($http);
-        return $result;
-    }
-
-    /**
-     * Send a Curl PUT request
-     * 
-     * @param string $url : The CURLOPT_URL option
-     * @param string $postField : The CURLOPT_POSTFIELDS option
-     * @param int $postFieldCount : The CURLOPT_POST option
-     */
-    public function send_put_request(string $url,string $postfield)
-    {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $this->sendCurlRequest($url,'PUT',$postfield);
     }
 
     /**
      * Set the Bbox lights to the value specified by $value
      * 
      * @param string $value : '100' to set On '0' else
+     * @return mixed Curl execution response or false if failed
      */
     public function setBboxLightsTo(string $value)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $serveurIp = $this->getBboxIp();
-        $this->open_api_session($serveurIp);
-
-        $url = $serveurIp . '/api/v1/device/display';
+        $this->refreshToken();
         $postField = 'luminosity='.$value;
-
-        $this->send_put_request($url,$postField);
+        $response = $this->sendCurlRequest('/api/v1/device/display',false,'PUT',$postField);
+        return $this->responseCheck($response);
     }
 
     /**
@@ -962,13 +909,10 @@ class bbox_sagemcom extends eqLogic {
     public function setWifiTo(bool $value)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $serveurIp = $this->getBboxIp();
-        $this->open_api_session($serveurIp);
-
-        $url = $serveurIp . '/api/v1/wireless';
+        $this->refreshToken();
         $postField = $value === true ? 'radio.enable=1' : 'radio.enable=0';
-
-        $this->send_put_request($url,$postField);
+        $response = $this->sendCurlRequest('/api/v1/wireless',false,'PUT',$postField);
+        return $this->responseCheck($response);
     }
 
     /**
@@ -979,11 +923,9 @@ class bbox_sagemcom extends eqLogic {
     public function setPhoneUnRing(int $phoneNumber)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $serveurIp = $this->getBboxIp();
-        $this->open_api_session($serveurIp);
-
-        $url = $serveurIp . '/api/v1/voip/ringtest/'.$phoneNumber;
-        $this->sendCurlRequest($url,"DELETE");
+        $this->refreshToken();
+        $response = $this->sendCurlRequest('/api/v1/voip/ringtest/'.$phoneNumber,false,"DELETE");
+        return $this->responseCheck($response);
     }
 }
 
@@ -996,32 +938,32 @@ class bbox_sagemcomCmd extends cmd {
         
         switch ($cmd) {
             case "refresh":
-                $bbox->box_monitor_api();
+                $result = $bbox->box_monitor_api();
                 break;
 
             case "reboot_box":
                 $function = 'device/reboot';
-                $bbox->sendRequestWithToken($function);
+                $result = $bbox->sendRequestWithToken($function);
                 break;
 
             case "lightOn":
-                $bbox->setBboxLightsTo('100');
+                $result = $bbox->setBboxLightsTo('100');
                 $lightStatus = $bbox->getBboxLightsStatus();
                 if(!is_null($lightStatus)) $bbox->checkAndUpdateCmd('lightState', $lightStatus);
                 break;
 
             case "lightOff":
-                $bbox->setBboxLightsTo('0');
+                $result = $bbox->setBboxLightsTo('0');
                 $lightStatus = $bbox->getBboxLightsStatus();
                 if(!is_null($lightStatus)) $bbox->checkAndUpdateCmd('lightState', $lightStatus);
                 break;
 
             case "wifi_start":
-                $bbox->setWifiTo(true);
+                $result = $bbox->setWifiTo(true);
                 break;
 
             case "wifi_stop":
-                $bbox->setWifiTo(false);
+                $result = $bbox->setWifiTo(false);
                 break;
 
             case "phone1_ring":
@@ -1029,7 +971,7 @@ class bbox_sagemcomCmd extends cmd {
                 $result = $bbox->sendRequestWithToken($function);
                 break;
             case "phone1_unring":
-                $bbox->setPhoneUnRing(1);
+                $result = $bbox->setPhoneUnRing(1);
                 break;
         }
         // Execute the function

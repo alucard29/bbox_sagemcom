@@ -3,13 +3,19 @@
 		<div class="cmdName">#name#</div>
 	</div>
 	<div class="content-sm">
-		<span style="font-size: 2.5em;" class="action"  id="iconCmd#id#"></span>
+		<span style="font-size: 2.5em;" class="iconTv"></span>
 	</div>
 	<script>
-		if ("#state#" == "1") {
-			$("#iconCmd#id#").append("<i class='icon techno-tv'></i>").css('color','lime');
-		} else {
-			$("#iconCmd#id#").append("<i class='icon techno-tv'></i>").css('color','red');
+		jeedom.cmd.update['#id#'] =function(_options){
+			$(".iconTv").empty();
+			var cmd = $('.cmd[data-cmd_id=#id#]');
+			cmd.attr('title','{{Date de valeur}} : '+_options.valueDate+'<br/>{{Date de collecte}} : '+_options.collectDate)
+			if (_options.display_value == '1') {
+				cmd.find('.iconTv').append("<i class='icon techno-tv'></i>").css('color','lime');
+			}else {
+				cmd.find('.iconTv').append("<i class='icon techno-tv'></i>").css('color','red');
+			}
 		}
+		jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
 	</script>
 </div>

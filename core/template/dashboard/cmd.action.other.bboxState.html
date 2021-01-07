@@ -1,25 +1,37 @@
 
-<a class="cmd power" style="position : absolute;left : 3px;top : 3px;font-size : 1em;" data-type="info" data-subtype="numeric" data-cmd_id="#id#" title="Redémarrer">
+<div class="cmd power" style="position : absolute;left : 3px;top : 3px;font-size : 1em;" data-type="info" data-subtype="numeric" data-cmd_id="#id#" data-cmd_uid="#uid#" title="Redémarrer">
 	<center>
                 <!--<span class="action bbox_cmd test" id="iconCmd#id#"></span>-->
-                <span class="action iconCmd#id#"></span>
+                <span class="action iconReboot"></span>
 	</center>
 	<script>
-            $(".iconCmd#id#").empty();
-            if ("#state#" == "1") {
-                    $(".iconCmd#id#").append("<i class='fa fa-power-off'></i>").css("color", "lime");
-                    if (jeedom.cmd.normalizeName("#name#") == "on") {
-                            $(".cmd[data-cmd_id=#id#]").hide();
-                    }
-            } else {
-                    $(".iconCmd#id#").append("<i class='fa fa-power-off'></i>").css("color", "red");
-                    if (jeedom.cmd.normalizeName("#name#") == "off") {
-                            $(".cmd[data-cmd_id=#id#]").hide();
-                    }
-            }
-            $(".cmd[data-cmd_id=#id#] .action").off();
-            $(".cmd[data-cmd_id=#id#] .action").on("click", function() {
-                    jeedom.cmd.execute({id: "#id#"});
-            });
+            jeedom.cmd.update['#id#'] = function(_options) {
+                $(".iconReboot").empty();
+                var cmd = $('.cmd[data-cmd_id=#id#]')
+                if (_options.display_value == '1' || _options.display_value == 1 || _options.display_value == '99' || _options.display_value == 99 || _options.display_value == 'on') {
+                        if (jeedom.cmd.normalizeName('#name#') == 'on') {
+                                cmd.hide()
+                        } else {
+                                cmd.show()
+                        }
+                        $(".iconReboot").append("<i class='fa fa-power-off'></i>").css("color", "lime");
+
+                } else if (_options.display_value == '0' || _options.display_value == 0 ||  _options.display_value == 'off') {
+                        if (jeedom.cmd.normalizeName('#name#') == 'off') {
+                                cmd.hide()
+                        } else {
+                                cmd.show()
+                        }
+                        $(".iconReboot").append("<i class='fa fa-power-off'></i>").css("color", "red");
+                }
+        }
+
+        jeedom.cmd.update['#id#']({display_value:'#state#'})
+
+            $('.cmd[data-cmd_uid=#uid#] .action').off().on('click', function (event) {
+		  event.preventDefault()
+		  event.stopPropagation()
+		  jeedom.cmd.execute({id: '#id#'})
+		})
 	</script>            
-</a>
+</div>
