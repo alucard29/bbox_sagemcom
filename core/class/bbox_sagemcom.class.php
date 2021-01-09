@@ -48,7 +48,7 @@
 // v1.3.1 		12/12/2020		Calllog corrected
 // v1.3.2       21/12/2020      AES256-SHA added to cypher list
 // v1.3.3       22/12/2020      set CURLOPT_USE_SSL to CURLUSESSL_TRY
-// v2.0.0       TBC             Code refactored
+// v2.0.0       09/01/2021      Code refactored
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
@@ -189,6 +189,7 @@ class bbox_sagemcom extends eqLogic {
      */
     public function configureBBoxCmd($cmd) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for command : ' . $cmd['name']);
+        
         if ($cmd) {
             $configureCmd = $this->getCmd(null, $cmd['logicalId']);
             log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] work on : ' . $cmd['logicalId']);
@@ -245,285 +246,144 @@ class bbox_sagemcom extends eqLogic {
     }
 
     /**
-     * TBC
+     * Refresh all cmds 
      */
-    public function box_monitor_api() {
+    public function refreshAll() {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');      
 
         // wan connection detection
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Try to find a Wan connection');
-        $bbox_detection = true;
-        $wan_connected = 0;
-        $wan = "";
-        $result = $this->api_request('wan/ip');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            if ($result[0]['wan']['ip']['state'] == 'Up') {
-                $wan_connected = 1;
-                $wan = $result[0]['wan']['ip']['address'];
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Find a Wan connection : ' . $wan);
-            }
+        $bboxDetected = $wanConnected = $wanAddress = false;
+        $resultWan = $this->sendApiRequest('wan/ip');
+        if(is_array($resultWan)) {
+            $bboxDetected = true;
+            $wanConnected = $resultWan[0]['wan']['ip']['state'] == 'Up' ? 1 : 0;
+            $wanAddress = $resultWan[0]['wan']['ip']['address'];
         }
 
         // VoIP detection
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] VoIP detection');
-        $voip_enabled = 0;
-        $voip_line = 0;
-        $phone_nb = '';
-        $result = $this->api_request('voip');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            if (array_key_exists('exception', $result)) {
-                $re_connect = $this->refreshToken();
-                $result = $this->api_request('voip');
-            }
-            if (isset($result[0]['voip'][0]['status']) && ($result[0]['voip'][0]['status'] == 'Up')) {
-                $voip_enabled = 1;
-                $voip_line = $result[0]['voip'][0]['id'];
-                $chaine = preg_split("/@/", $result[0]['voip'][0]['uri']);
-                $phone_nb = $chaine[0];
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Found an active VoIP service');
-            }
+        $voipEnabled = $voipLine = $phoneNb = false;
+        $resultVoip = $this->sendApiRequest('voip');
+        if(is_array($resultVoip)){
+            $voipEnabled = $resultVoip[0]['voip'][0]['status'] == 'Up' ? 1 : 0;
+            $voipLine = $resultVoip[0]['voip'][0]['id'];
+            $phoneNb = preg_split("/@/", $resultVoip[0]['voip'][0]['uri'])[0];
         }
 
         // Call Log | added the 30/12/2015 | restriction : Apply only for 1 line (the fist)
-        // First, refresh data
-        $re_connect = $this->refreshToken();
-        if ($re_connect == true) {
-            $result = $this->refresh_bbox('callLog');
-            $this->waitBoxReady(120);
-            if ($result == false) {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-                $bbox_detection = false;
-            } else {
-                // FIXME: $result is true here, not an array and what's the point to reconnect etc?
-
-                // if (array_key_exists('exception', $result)) {
-                //     $re_connect = $this->refreshToken();
-                //     $result = $this->refresh_bbox('callLog');
-                //     $this->waitBoxReady(120);
-                // }
-            }
- 
-            // Second, collect data
-            $result = $this->api_request('voip/fullcalllog/'.$voip_line);
-            if ($result == false) {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-                $bbox_detection = false;
-            } else {
-                $calllog = $result[0]['calllog'];
-                if (is_array($calllog)) {
-                    foreach ($calllog as $host_key => $host_value) {
-                        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] found a call in log with number : ' . $host_value['number']);
-                      //  if ($host_value['direction']=='E'){
-                            $number = $host_value['number'];
-                       // } else {
-                       //     $number = $host_value['name'];
-                       // }
-						if($host_value['type'] == 'in')
-						{
-							if($host_value['answered'] == 0)
-							{
-								$callType = 'A';
-							} else {
-								$callType = 'R';
-							}
-						} else {
-							if($host_value['answered'] == 0)
-							{
-								$callType = 'U';
-							} else {
-								$callType = 'E';
-							}
-						}
-					   
-						$date = date('d-m-Y H:i:s', $host_value['date']);
-						log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] the call date is : '.$date);
-                        $calllog_List[] = [$callType, $number, $host_value['duree'], $date];
+        $calllogList = false;
+        if($voipLine){
+            $resultCallLog = $this->sendApiRequest('voip/fullcalllog/'.$voipLine);
+            $calllog = $resultCallLog[0]['calllog'];
+            if (is_array($calllog)) {
+                foreach ($calllog as $value) {
+                    $number = $value['number'];
+                    if($value['type'] == 'in'){
+                        $callType = $value['answered'] == 0 ? 'A' : 'R';
+                    } else {
+                        $callType = $value['answered'] == 0 ? 'U' : 'E';
                     }
-                } else {
-                    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] detect calllog entry is not a array');
+                    $date = date('d-m-Y H:i:s', $value['date']);
+                    $calllogList[] = [$callType, $number, $value['duree'], $date];
                 }
             }
         }
-
-         // Message Log | added the 21/1/2016 | restriction : Apply only for 1 line (the fist)
-        $result = $this->refresh_bbox('get_voicemail');
-        $this->waitBoxReady(120);
-        $result = $this->api_request('voip/voicemail');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            $messagelog = $result[0]['voicemail'];
-            if (is_array($messagelog)) {
-                foreach ($messagelog as $host_key => $host_value) {
-                    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] found a message in log with caller number : ' . $host_value['callernumber']);
-                    $messagelog_List[] = [$host_value['readstatus'], $host_value['callernumber'], $host_value['duration'], $host_value['dateconsult'], $host_value['linkmsg'], strval($host_value['id'])];
-                }
-            } else {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] detect messagelog entry is not a array');
-            }
-        }
+        
 
         // Uptime calculation
-        $result = $this->api_request('device');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            $uptime = $this->formatTime($result[0]['device']['uptime']);
-            if($result[0]['device']['display']['luminosity'] == 0) {
-                $light = 0;
-            } else {
-                $light = 1;
-            }
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Result of formatTime is : ' . $uptime);
+        $uptime = $light = false;
+        $resultDevice = $this->sendApiRequest('device');
+        if(is_array($resultDevice)) {
+            $uptime = $this->formatTime($resultDevice[0]['device']['uptime']);
+            $light = $resultDevice[0]['device']['display']['luminosity'];
         }
 
         // Data Send/Received variation calculation
-        $result = $this->api_request('wan/ip/stats');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            $data_received = round(floatval($result[0]['wan']['ip']['stats']['rx']['bytes']));
-            $data_send = round(floatval($result[0]['wan']['ip']['stats']['tx']['bytes']));
-            $var_data_received = $this->variation_calculation('var_data_received', $data_received);
-            $var_data_send = $this->variation_calculation('var_data_send', $data_send);
-        }
-
-        // Bandwidth calculation (depends on the selected mode)
-        $connexion = $this->getConfiguration('BBOX_CONNEXION_TYPE');
-        if ($connexion == 0) {
-            $type = "cable";
-        } else {
-            $type = "xdsl";
-        }
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Selected connexion type is : ' . $type);
-
-
-        if ($type == "xdsl") {
-            // results are given in kbps
-            $rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['bandwidth']) * 1000);
-            $max_rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['maxBandwidth']) * 1000);
-            $rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['bandwidth']) * 1000);
-            $max_rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['maxBandwidth']) * 1000);
-        } else {
-            // results are given in kbps and max values in bps
-            $rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['bandwidth']) * 1000);
-            $max_rate_down = round(floatval($result[0]['wan']['ip']['stats']['rx']['maxBandwidth']));
-            $rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['bandwidth']) * 1000);
-            $max_rate_up = round(floatval($result[0]['wan']['ip']['stats']['tx']['maxBandwidth']));
+        $dataReceived = $dataSend = $varDataReceived = $varDataSend = false;
+        $rateDown = $maxRateDown = $rateUp = $maxRateUp = false;
+        $factor = $this->getConfiguration('BBOX_CONNEXION_TYPE') == 0 ? 1 : 1000;
+        $resultIpStats = $this->sendApiRequest('wan/ip/stats');
+        if(is_array($resultIpStats)) {
+            $dataReceived = round(floatval($resultIpStats[0]['wan']['ip']['stats']['rx']['bytes']));
+            $dataSend = round(floatval($resultIpStats[0]['wan']['ip']['stats']['tx']['bytes']));
+            $varDataReceived = $this->variation_calculation('var_data_received', $dataReceived);
+            $varDataSend = $this->variation_calculation('var_data_send', $dataSend);
+            $rateDown = round(floatval($resultIpStats[0]['wan']['ip']['stats']['rx']['bandwidth']) * 1000);
+            $maxRateDown = round(floatval($resultIpStats[0]['wan']['ip']['stats']['rx']['maxBandwidth']) * $factor);
+            $rateUp = round(floatval($resultIpStats[0]['wan']['ip']['stats']['tx']['bandwidth']) * 1000);
+            $maxRateUp = round(floatval($resultIpStats[0]['wan']['ip']['stats']['tx']['maxBandwidth']) * $factor);
         }
 
         // connected devices detection + TV detection (Adapted from Bouygues box code)
-        $device_detected = 0;
-        $tv_detected = 0;
-        $result = $this->api_request('hosts');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            $device_parameters = $result[0]['hosts']['list'];
-            if (is_array($device_parameters)) {
-                foreach ($device_parameters as $host_key => $host_value) {
-                    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Start devices detection with Key : ' . $host_key);
-                    if (isset($host_value['active']) && $host_value['active'] == 1) {
-                        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Connected device ' . $host_value['ipaddress'] . ' is active');
-                        $IP = $host_value['ipaddress'];
-                        $devices_List[] = [$IP, $host_value['hostname'], $host_value['macaddress']];
-                        $device_detected++;
-                        if ($host_value['devicetype'] == "STB") {
-                            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Connected media device is a STB device (i.e. TV)');
-                            $tv_detected = 1;
-                        }
+        $deviceDetected = $tvDetected = $devicesList = false;
+        $hostsResult = $this->sendApiRequest('hosts');
+        if(is_array($hostsResult)) {
+            $hostList = $hostsResult[0]['hosts']['list'];
+            if (is_array($hostList)) {
+                $deviceDetected = 0;
+                $tvDetected = 0;
+                foreach ($hostList as $hostValue) {
+                    if (isset($hostValue['active']) && $hostValue['active'] == 1) {
+                        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Connected device ' . $hostValue['ipaddress'] . ' is active');
+                        $IP = $hostValue['ipaddress'];
+                        $devicesList[] = [$IP, $hostValue['hostname'], $hostValue['macaddress']];
+                        $deviceDetected++;
+                        if($hostValue['devicetype'] == "STB") $tvDetected = 1;
                     }
                 }
-            } else {
-                log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] detect connected devices entry is not a array');
             }
         }
-
-        // TV Channel detection  (old method)
-        $currentTvChannel = "";
-        //$tvChannelInformation = "";
-        //$result = $this->api_request('iptv');
-        //if ($result == false) {
-        //    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-        //} else {
-        //    $iptv = $result[0]['iptv'];
-        //    if (is_array($iptv)) {
-        //        foreach ($iptv as $host_key => $host_value) {
-        //            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Start devices detection with Key : ' . $host_key);
-        //            if (isset($host_value['name']) && $host_value['name'] != "") {
-        //                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Current channel is : '. $host_value['name']);
-        //                $currentTvChannel = $host_value['name'];
-        //            }
-        //        }
-        //    } else {
-        //        log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] detect iptv entry is not a array');
-        //    }
-        //}
 
         // wifi state detection and new TV detection method
-        $wifi_detected = 0;
-        $result = $this->api_request('summary');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            $bbox_detection = false;
-        } else {
-            if ($result[0]['wireless']['radio'] == 1) {
-                $wifi_detected = 1;
-
-            }
-            $received_calls = $result[0]['voip'][0]['notanswered'];
-            $message_waiting = $result[0]['voip'][0]['message'];
-	    $currentTvChannel = $result[0]['display']['frontpanel'];
+        $wifiDetected = $receivedCalls = $messageWaiting = false;
+        $SummaryResult = $this->sendApiRequest('summary');
+        if(is_array($SummaryResult)){
+            $wifiDetected = $SummaryResult[0]['wireless']['radio'];
+            $receivedCalls = $SummaryResult[0]['voip'][0]['notanswered'];
+            $messageWaiting = $SummaryResult[0]['voip'][0]['message'];
         }
 
-
+        //  TV Detection
+        $iptvResult = $this->sendApiRequest('iptv');
+        $currentTvChannel = is_array($iptvResult) ? $iptvResult[0]['iptv'][0]['name'] : false;
 
         // Save results in an array using cmd ID as Key
-        $retourbbox = array('box_state' => $bbox_detection,
-            'wan_state' => $wan_connected,
-            'wifi_state' => $wifi_detected,
-            'tv_state' => $tv_detected,
-            'voip_state' => $voip_enabled,
-            'public_ip' => $wan,
-            'phone_nb' => $phone_nb,
+        $retourbbox = array('box_state' => $bboxDetected,
+            'wan_state' => $wanConnected,
+            'wifi_state' => $wifiDetected,
+            'tv_state' => $tvDetected,
+            'voip_state' => $voipEnabled,
+            'public_ip' => $wanAddress,
+            'phone_nb' => $phoneNb,
             'uptime' => $uptime,
-            'rate_down' => $rate_down,
-            'max_rate_down' => $max_rate_down,
-            'rate_up' => $rate_up,
-            'max_rate_up' => $max_rate_up,
-            'data_received' => $data_received,
-            'data_send' => $data_send,
-            'var_data_received' => $var_data_received,
-            'var_data_send' => $var_data_send,
-            'received_calls' => $received_calls,
-            'message_waiting' => $message_waiting,
-            'connected_devices' => $device_detected,
-            'devices_List' => json_encode($devices_List),
-            'calllog' => json_encode($calllog_List),
-            'messagelog' => json_encode($messagelog_List),
+            'rate_down' => $rateDown,
+            'max_rate_down' => $maxRateDown,
+            'rate_up' => $rateUp,
+            'max_rate_up' => $maxRateUp,
+            'data_received' => $dataReceived,
+            'data_send' => $dataSend,
+            'var_data_received' => $varDataReceived,
+            'var_data_send' => $varDataSend,
+            'received_calls' => $receivedCalls,
+            'message_waiting' => $messageWaiting,
+            'connected_devices' => $deviceDetected,
+            'devices_List' => json_encode($devicesList),
+            'calllog' => json_encode($calllogList),
             'lightState' => $light,
             'currentTvChannel' => $currentTvChannel,
         );
 
         // Save Info cmds using the array Key
         //foreach (eqLogic::byType('bbox_sagemcom') as $eqLogic){
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Start save process');
         foreach ($this->getCmd('info') as $cmd) {
             $cmd_id = $cmd->getLogicalId();
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Process for : '.$cmd_id.' started' );
-
             $checkAndUpdateCmdResult = $this->checkAndUpdateCmd($cmd_id,$retourbbox[$cmd_id]);
 
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Process for : '.$cmd_id.' ended with '.$checkAndUpdateCmdResult ? 'Success' : 'Failure');
+            if($checkAndUpdateCmdResult) {
+                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Process for : '.$cmd_id.' ended. command has been updated');
+            } else {
+                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Process for : '.$cmd_id.' ended. command hasn\'t been updated');
+            }
 
             // Update the rate down max value if needed
             if ($cmd_id == 'rate_down') $this->updateMaxRate($cmd, $cmd_id, floatval($retourbbox['max_rate_down']));
@@ -542,159 +402,16 @@ class bbox_sagemcom extends eqLogic {
      */
     public function updateMaxRate(object $cmd, string $cmdId, float $reguestValue)
     {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for : '.$cmdId.' Max stored value was : '.$maxStored.' when Max response value is : '.$reguestValue);
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
         $maxStored = $cmd->getConfiguration('maxValue');
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for : '.$cmdId.' Max stored value was : '.$maxStored.' when Max response value is : '.$reguestValue);
         if ($maxStored != $reguestValue) {
             $cmd->setConfiguration('maxValue', $reguestValue);
             $cmd->save();
         }
     }
 
-    /**
-     * Get the debian version running on.
-     * 
-     * @param   void 
-     * @return  string the debian version or null 
-     */
-    public function getDebianVersion()
-    {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $return = shell_exec('lsb_release -sr');
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Found version : '.$return);
-        return $return;
-    }
-
-    /**
-     * Define Curl SSL Security Strategy
-     * 
-     * @param   void 
-     * @return  bool true if we can lower the SSL Security Strategy else false
-     */
-    public function canLowerSslSecurity()
-    {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $canLowerSslSecurity = $this->getCache('canLowerSslSecurity');
-        if(empty($canLowerSslSecurity)){
-            $version = $this->getDebianVersion();
-
-            // Set a default value if not a debian or something else
-            isset($version) ? $version = intval($version) : $version = 0;
-            $return = $version > 9 ? true : false ;
-
-            // The SSL Security Strategy cannot be lowered for Debian version less than 10
-            $this->setCache('canLowerSslSecurity',$return);
-            $canLowerSslSecurity = $return;
-        }
-        return $canLowerSslSecurity;
-    }
-
-    public function api_request($type) {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-
-        $response = $this->sendCurlRequest('/api/v1/'.$type,false);
-
-        $decoded_response = json_decode($response, true);
-
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Decoded response is : ' . $response);
-
-        // Test if the BBox has returned an error (or no JSON response)
-        if ((json_last_error() != 0) || array_key_exists('error', $decoded_response)) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Error or bad JSON respond from the BBox.');
-            return false;
-        } else {
-            return $decoded_response;
-        }
-    }
-
-    // Function used to request a new cookie
-    public function refreshToken() {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $password = $this->getConfiguration('BBOX_PSSWD');
-        $result = $this->sendCurlRequest('/api/v1/login',true,null,'password='.$password);
-
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] response is : ' . $result);
-        $decodedResult = json_decode($result, true);
-        if (is_array($decodedResult)){
-            if (array_key_exists('exception', $decodedResult)) {
-                log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] Le mot de passe utilisé pour la BBox est ou était erroné. Il est nécessaire de redémarrer manuellement la Box');
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    public function refresh_bbox($action) {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $result = $this->sendCurlRequest('/api/v1/profile/refresh',false,'PUT','action='.$action);
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] response is : ' . $result);
-        return true;
-    }
-
-    public function waitBoxReady($timeout) {
-        $bboxBusy = false;
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $startTime = time();
-        $result = $this->api_request('profile/consumption');
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Consumption response is : ' . $result);
-        while ($result[0]['profile']['state'] != 0){
-            if(time() > $startTime + $timeout) {
-                $bboxBusy = true;
-                break;
-            }
-            $result = $this->api_request('profile/consumption');
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Consumption response is : ' . $result);
-        }
-        if ($bboxBusy == true){
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public function refreshMessageWaiting() {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $result = $this->api_request('summary');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            return false;
-        } else {
-            $message_waiting = $result[0]['voip'][0]['message'];
-            $cmd= $this->getCmd('info','message_waiting');
-            $cmd_id= $cmd->getLogicalId();
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Save a new value for ID : '.$cmd_id);
-            $cmd->setCollectDate('');
-            $cmd->event($message_waiting);
-            return true;
-        }
-    }
-
-    public function refreshMessageLog() {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $result = $this->api_request('voip/voicemail');
-        if ($result == false) {
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
-            return false;
-        } else {
-            $messagelog = $result[0]['voicemail'];
-            if (is_array($messagelog)) {
-                foreach ($messagelog as $host_key => $host_value) {
-                    log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] found a message in log with caller number : ' . $host_value['callernumber']);
-                    $messagelog_List[] = [$host_value['readstatus'], $host_value['callernumber'], $host_value['duration'], $host_value['dateconsult'], $host_value['linkmsg'], strval($host_value['id'])];
-                }
-                $cmd= $this->getCmd('info','messagelog');
-                $cmd->setCollectDate('');
-                $cmd->event(json_encode($messagelog_List));
-            } else {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] detect messagelog entry is not a array');
-            }
-            return true;
-        }
-    }
-
-    // Function to format the uptime from box to a human format string
+      // Function to format the uptime from box to a human format string
     // Only adapted from the BBox F@ast calculation function
     function formatTime($uptime) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
@@ -765,8 +482,68 @@ class bbox_sagemcom extends eqLogic {
 
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Update the variation value with : ' . $new_var);
         $this->setCache($var_name, $actual_value);
-        //$this->save();
         return $new_var;
+    }
+
+    
+
+    /**
+     * Get the debian version running on.
+     * 
+     * @param   void 
+     * @return  string the debian version or null 
+     */
+    public function getDebianVersion()
+    {
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
+        $return = shell_exec('lsb_release -sr');
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Found version : '.$return);
+        return $return;
+    }
+
+    /**
+     * Define Curl SSL Security Strategy
+     * 
+     * @param   void 
+     * @return  bool true if we can lower the SSL Security Strategy else false
+     */
+    public function canLowerSslSecurity()
+    {
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
+        $canLowerSslSecurity = $this->getCache('canLowerSslSecurity');
+        if(empty($canLowerSslSecurity)){
+            $version = $this->getDebianVersion();
+
+            // Set a default value if not a debian or something else
+            isset($version) ? $version = intval($version) : $version = 0;
+            $return = $version > 9 ? true : false ;
+
+            // The SSL Security Strategy cannot be lowered for Debian version less than 10
+            $this->setCache('canLowerSslSecurity',$return);
+            $canLowerSslSecurity = $return;
+        }
+        return $canLowerSslSecurity;
+    }
+
+    /**
+     * Function used to extend the current session
+     * 
+     * @return mixed http response or false if failed
+     */
+    public function extendSession() {
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
+        return $this->sendCurlRequest('/api/v1/login',false,'PUT');
+    }
+
+    /**
+     * Function used to request a new cookie
+     * 
+     * @return mixed http response or false if failed
+     */
+    public function createSession() {
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
+        $password = $this->getConfiguration('BBOX_PSSWD');
+        return $this->sendCurlRequest('/api/v1/login',true,null,'password='.$password);
     }
 
     /**
@@ -786,18 +563,6 @@ class bbox_sagemcom extends eqLogic {
     }
 
     /**
-     * Check the BBox Response
-     * 
-     * @param string $response Curl response
-     * @return bool true if the response is the expected one false else
-     */
-    public function responseCheck(string $response)
-    {
-        //Todo
-        return true;
-    }
-
-    /**
      * Get token from BBox
      * 
      * @return string the Token
@@ -806,8 +571,7 @@ class bbox_sagemcom extends eqLogic {
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
         $response = $this->sendCurlRequest('/api/v1/device/token',false);
-        $decoded_response = json_decode($response, true);
-        return $decoded_response[0]['device']['token'];
+        return $response[0]['device']['token'];
     }
 
     /**
@@ -819,8 +583,47 @@ class bbox_sagemcom extends eqLogic {
      */
     public function sendRequestWithToken(string $function, string $postField = null) {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $response = $this->sendCurlRequest('/api/v1/'.$function.'?btoken='.$this->getToken(),false,null,$postField);
-        return $this->responseCheck($response);
+        return $this->sendApiRequest($function.'?btoken='.$this->getToken(),false,null,$postField);
+    }
+
+    /**
+     * Method called to send a request to the BBox API
+     * 
+     * @param string $api The API address part of the URL
+     * @param bool $header The CURLOPT_HEADER option
+     * @param string $method The CURLOPT_CUSTOMREQUEST option
+     * @param string $postfield The CURLOPT_POSTFIELDS option
+     * @return mixed Curl execution response or false if failed
+     */
+    public function sendApiRequest(string $api,bool $header = false, string $method = null,string $postfield = null)
+    {
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for : '.$api);
+        $result = $this->sendCurlRequest('/api/v1/'.$api,$header,$method ,$postfield);
+        if($result !== false){
+            if(is_array($result)){
+                $http_code = $result[0];
+                switch ($http_code) {
+                    case 200:  # OK
+                        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] response is : '.$result[1]);
+                        return json_decode($result[1], true);
+                        break;
+                    case 401: # Unauthorized
+                        $this->createSession();
+                        $result2 = $this->sendCurlRequest('/api/v1/'.$api,$header,$method ,$postfield);
+                        return is_array($result2) ? json_decode($result2[1], true) : false;
+                        break;
+                    default:
+                        log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] http receive code isn\'t 200 but : '.$http_code);
+                        log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] message is : '.$result[1]);
+                        return false;
+                }
+            } else {
+                // unexpected error
+                throw new Exception('Unexpected error in '.__FUNCTION__);
+                return false;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -830,7 +633,7 @@ class bbox_sagemcom extends eqLogic {
      * @param bool $header The CURLOPT_HEADER option
      * @param string $method The CURLOPT_CUSTOMREQUEST option
      * @param string $postfield The CURLOPT_POSTFIELDS option
-     * @return mixed Curl execution response or false if failed
+     * @return mixed Array of HTTP code and Curl execution response or false if failed
      */
     public function sendCurlRequest(string $api,bool $header, string $method = null,string $postfield = null)
     {
@@ -855,20 +658,29 @@ class bbox_sagemcom extends eqLogic {
             curl_setopt($http, CURLOPT_COOKIEFILE, "/tmp/cookies.txt");
             
             $result = curl_exec($http);
-    
-            foreach(curl_getinfo($http) as $key => $value) {
-                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Curl info : '.$key.' is  : '.$value ); 
-            }
-            
-            log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Response is : ' . $result);
+            $errorNb = curl_errno($http);
+            $http_code = curl_getinfo($http, CURLINFO_HTTP_CODE);
             curl_close($http);
-            return $result;
-        } else {
+
+            // Http state verify
+            if (!$errorNb) 
+            {
+                return [$http_code,$result];
+            }
+            else
+            {
+                log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] http failed. error code is : '.$errorNb.' for url :'.$url);
+                return false;
+            }
+        } 
+        else 
+        {
+            log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] fail to find bbox addresss');
             return false;
         }
     }
 
-    /**
+        /**
      * Set the Bbox lights to the value specified by $value
      * 
      * @param string $value : '100' to set On '0' else
@@ -877,10 +689,9 @@ class bbox_sagemcom extends eqLogic {
     public function setBboxLightsTo(string $value)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $this->refreshToken();
+        $this->extendSession();
         $postField = 'luminosity='.$value;
-        $response = $this->sendCurlRequest('/api/v1/device/display',false,'PUT',$postField);
-        return $this->responseCheck($response);
+        return $this->sendApiRequest('device/display',false,'PUT',$postField);
     }
 
     /**
@@ -892,7 +703,7 @@ class bbox_sagemcom extends eqLogic {
     public function getBboxLightsStatus()
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $result = $this->api_request('device');
+        $result = $this->sendApiRequest('device');
         if ($result == false) {
             log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] BBox not detected or bad response');
         } else {
@@ -905,27 +716,27 @@ class bbox_sagemcom extends eqLogic {
      * Set the Bbox wifi to the value specified by $value
      * 
      * @param bool $value : true to set On false else
+     * @return mixed return of sendApiRequest function
      */
     public function setWifiTo(bool $value)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $this->refreshToken();
+        $this->extendSession();
         $postField = $value === true ? 'radio.enable=1' : 'radio.enable=0';
-        $response = $this->sendCurlRequest('/api/v1/wireless',false,'PUT',$postField);
-        return $this->responseCheck($response);
+        return $this->sendApiRequest('wireless',false,'PUT',$postField);
     }
 
     /**
-     * Unring the specified phone line
+     * Ring test all phone lines
      * 
-     * @param bool $value : true to set On false else
+     * @param int $enable 1: Start the test. 0: End the test.
+     * @return mixed return of sendApiRequest function
      */
-    public function setPhoneUnRing(int $phoneNumber)
+    public function setPhonesTest(int $testState)
     {
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
-        $this->refreshToken();
-        $response = $this->sendCurlRequest('/api/v1/voip/ringtest/'.$phoneNumber,false,"DELETE");
-        return $this->responseCheck($response);
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called with param : '.$testState);
+        $this->extendSession();
+        return $this->sendApiRequest('voip/ringtest',false,"PUT",'enable='.$testState);
     }
 }
 
@@ -938,7 +749,7 @@ class bbox_sagemcomCmd extends cmd {
         
         switch ($cmd) {
             case "refresh":
-                $result = $bbox->box_monitor_api();
+                $result = $bbox->refreshAll();
                 break;
 
             case "reboot_box":
@@ -967,11 +778,10 @@ class bbox_sagemcomCmd extends cmd {
                 break;
 
             case "phone1_ring":
-                $function = 'voip/ringtest/1';
-                $result = $bbox->sendRequestWithToken($function);
+                $result = $bbox->setPhonesTest(1);
                 break;
             case "phone1_unring":
-                $result = $bbox->setPhoneUnRing(1);
+                $result = $bbox->setPhonesTest(0);
                 break;
         }
         // Execute the function

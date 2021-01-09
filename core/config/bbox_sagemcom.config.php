@@ -390,19 +390,6 @@ $listCmdBbox_sagemcom = array(
         ),
     ),
     array(
-        'name' => 'Journal des messages',
-        'type' => 'info',
-        'subType' => 'string',
-        'logicalId' => 'messagelog',
-        'description' => 'liste les messages enregistrés',
-        'group' => 'VoIP',
-        'configuration' => array(
-            'order' => $index++,
-            'visible' => 0,
-            'template' => 'messageList',
-        ),
-    ),
-    array(
         'name' => 'Chaîne',
         'type' => 'info',
         'subType' => 'string',

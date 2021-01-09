@@ -16,8 +16,9 @@
 			$('.cmd[data-cmd_id=#id#] .stateCmd').empty().append(_options.display_value);
 		}
                 jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
-            
-            $('#iconCmd#id#').on('click', function() {
+          
+            // Doesn't exist anymore since API v130
+            /*$('#iconCmd#id#').on('click', function() {
                 $('#md_modal2').dialog({
                         title: "Liste des messages",
                         width : 420,
@@ -26,6 +27,6 @@
                 });
 
                 $('#md_modal2').load('index.php?v=d&plugin=bbox_sagemcom&modal=messagelog&id=#id#').dialog('open');
-            });
+            });*/
 	</script>
 </div>

@@ -20,7 +20,7 @@ Vous devez ensuite configurer votre équipement :
 
 image::../images/configuration.png[]
 
-Pour ce faire, entrez l'adresse de la box. Sauf cas particulier, renseignez "bbox" comme adresse pour votre box Bouygues Télécom.
+Pour ce faire, entrez l'adresse de la box. Sauf cas particulier, renseignez "https://mabbox.bytel.fr" comme adresse pour votre box Bouygues Télécom.
 
 [icon="../images/plugin/tip.png"]
 [TIP]
