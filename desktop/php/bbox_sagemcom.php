@@ -140,7 +140,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									</select>
 								</div>
 							</div>
-							<div id="box_passwd" class="form-group">
+							<div class="form-group">
 								<label class="col-sm-3 control-label" >{{Mot de passe}}</label>
 								<div class="col-sm-7">
 									<input class="eqLogicAttr configuration form-control" data-l1key="configuration" data-l2key="BBOX_PSSWD" type="password" placeholder="{{saisir le password}}"/>

@@ -20,17 +20,6 @@ jQuery(document).ready(function(){
 	view_mode($('.eqLogicAttr[data-l2key=BBOX_USE_API]').val());
 });
 
-function view_mode(mode){
-	if(mode == 'api'){
-		//$('#mode_select').hide();
-		$('#box_passwd').show();
-	}
-	else{
-		//$('#mode_select').show();
-		$('#box_passwd').hide();
-	}
-}
-
 $('body').delegate('.eqLogicAttr[data-l2key=BBOX_USE_API]', 'change', function () {
 	view_mode($(this).val());
 });
