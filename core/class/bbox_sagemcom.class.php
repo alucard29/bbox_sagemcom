@@ -604,6 +604,7 @@ class bbox_sagemcom extends eqLogic {
                 $http_code = $result[0];
                 switch ($http_code) {
                     case 200:  # OK
+                    case 302:  # Redirected is OK too
                         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] response is : '.$result[1]);
                         return json_decode($result[1], true);
                         break;
