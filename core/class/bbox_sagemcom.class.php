@@ -602,6 +602,7 @@ class bbox_sagemcom extends eqLogic {
         if($result !== false){
             if(is_array($result)){
                 $http_code = $result[0];
+                log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Response HTTP Code is :'.$http_code);
                 switch ($http_code) {
                     case 200:  # OK
                     case 302:  # Redirected is OK too
@@ -620,10 +621,13 @@ class bbox_sagemcom extends eqLogic {
                 }
             } else {
                 // unexpected error
+                log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] Unexpected error. Result is not an array');
+                log::add('bbox_sagemcom', 'error', '['.__FUNCTION__.'] Result is :'.$result);
                 throw new Exception('Unexpected error in '.__FUNCTION__);
                 return false;
             }
         }
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Error, result is null or empty');
         return $result;
     }
 
@@ -648,6 +652,7 @@ class bbox_sagemcom extends eqLogic {
             curl_setopt($http, CURLOPT_URL, $url);
             curl_setopt($http, CURLOPT_HEADER, $header);
             curl_setopt($http, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($http, CURLOPT_FOLLOWLOCATION, true);
             if(!is_null($method)) curl_setopt($http, CURLOPT_CUSTOMREQUEST, $method);
             if(!is_null($postfield))
             {
