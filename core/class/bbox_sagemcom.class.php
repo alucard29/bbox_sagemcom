@@ -49,6 +49,7 @@
 // v1.3.2       21/12/2020      AES256-SHA added to cypher list
 // v1.3.3       22/12/2020      set CURLOPT_USE_SSL to CURLUSESSL_TRY
 // v2.0.0       09/01/2021      Code refactored
+// v2.0.1       09/03/2021      Allow redirect and updateMaxRate corrected
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
@@ -397,16 +398,17 @@ class bbox_sagemcom extends eqLogic {
     /**
      * Update cache max value of the command if needed
      * 
-     * @param object $cmd the Command
+     * @param bbox_sagemcomCmd $cmd the Command
      * @param string $cmd_id the Command Logical Id
+     * @param float $requestValue the value from current request
      */
-    public function updateMaxRate(object $cmd, string $cmdId, float $reguestValue)
+    public function updateMaxRate($cmd, string $cmdId, float $requestValue)
     {
         log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called');
         $maxStored = $cmd->getConfiguration('maxValue');
-        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for : '.$cmdId.' Max stored value was : '.$maxStored.' when Max response value is : '.$reguestValue);
-        if ($maxStored != $reguestValue) {
-            $cmd->setConfiguration('maxValue', $reguestValue);
+        log::add('bbox_sagemcom', 'debug', '['.__FUNCTION__.'] Function called for : '.$cmdId.' Max stored value was : '.$maxStored.' when Max response value is : '.$requestValue);
+        if ($maxStored != $requestValue) {
+            $cmd->setConfiguration('maxValue', $requestValue);
             $cmd->save();
         }
     }
